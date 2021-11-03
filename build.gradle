@@ -1,9 +1,9 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.31'
 }
 
 subprojects {
     repositories {
+        mavenCentral()
         mavenLocal()
         maven {
             url 'https://repo.implario.dev/public/'
@@ -11,10 +11,12 @@ subprojects {
         maven {
             url 'https://repo.implario.dev/cristalix/'
             credentials {
-                username project.properties["IMPLARIO_REPO_USER"]
-                password project.properties["IMPLARIO_REPO_PASSWORD"]
+                username System.getenv("IMPLARIO_REPO_USER") ?: project.properties.get("IMPLARIO_REPO_USER").toString()
+                password System.getenv("IMPLARIO_REPO_PASSWORD") ?: project.properties.get("IMPLARIO_REPO_PASSWORD").toString()
             }
         }
-        mavenCentral()
+        maven {
+            url 'https://repo.anfanik.me/public'
+        }
     }
 }
