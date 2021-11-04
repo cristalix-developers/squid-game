@@ -1,7 +1,7 @@
 package me.func
 
-import dev.implario.bukkit.platform.Platform
 import dev.implario.bukkit.platform.Platforms
+import dev.implario.games5e.sdk.cristalix.ModLoader
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import implario.games.node.GameCreator
 import implario.games.node.GameNode
@@ -24,6 +24,7 @@ class App: JavaPlugin() {
 
         node.createGame(UUID.randomUUID(), null, null)
 
+        ModLoader.loadAll("/mods")
     }
 
 }
