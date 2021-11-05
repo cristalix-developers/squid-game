@@ -10,6 +10,7 @@ class App : KotlinMod() {
     override fun onEnable() {
         UIEngine.initialize(this)
 
+        Title
         TimeBar
         MarkerManager
 
