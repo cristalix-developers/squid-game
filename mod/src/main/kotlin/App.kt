@@ -2,6 +2,9 @@ import dev.xdark.clientapi.event.render.*
 import ru.cristalix.clientapi.KotlinMod
 import ru.cristalix.uiengine.UIEngine
 
+const val NAMESPACE = "squid-game"
+const val FILE_STORE = "http://51.38.128.132"
+
 class App : KotlinMod() {
 
     override fun onEnable() {
