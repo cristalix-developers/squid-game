@@ -1,3 +1,4 @@
 rootProject.name = 'squid-game'
 include 'node'
+include 'mod'
 

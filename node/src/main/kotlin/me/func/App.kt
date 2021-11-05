@@ -9,10 +9,12 @@ import implario.games.node.linker.SessionBukkitLinker
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 
+lateinit var app: App
+
 class App: JavaPlugin() {
 
     override fun onEnable() {
-
+        app = this
         Platforms.set(PlatformDarkPaper())
 
         val node = GameNode()

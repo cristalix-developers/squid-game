@@ -28,7 +28,7 @@ dependencies {
     implementation 'dev.implario.bukkit:kotlin-api:1.1.1'
     implementation 'dev.implario.bukkit:dark-paper:1.0.0'
     implementation 'dev.implario.games5e:bukkit-worker-core:2.0.4'
-    implementation 'ru.cristalix:games5e-integration:1.2.4'
+    implementation 'ru.cristalix:games5e-integration:1.2.5'
 
     implementation 'ru.cristalix:boards-bukkit-api:3.0.0'
     implementation 'ru.cristalix:npcs-bukkit-api:3.0.5'
