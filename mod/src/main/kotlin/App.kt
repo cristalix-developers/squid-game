@@ -7,6 +7,9 @@ class App : KotlinMod() {
     override fun onEnable() {
         UIEngine.initialize(this)
 
+        TimeBar
+        MarkerManager
+
         registerHandler<HealthRender> { isCancelled = true }
         registerHandler<ExpBarRender> { isCancelled = true }
         registerHandler<HungerRender> { isCancelled = true }
