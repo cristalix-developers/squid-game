@@ -12,6 +12,7 @@ import implario.games.node.GameNode
 import implario.games.node.linker.SessionBukkitLinker
 import me.func.user.User
 import me.func.user.UserData
+import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 
@@ -49,5 +50,9 @@ class App : JavaPlugin() {
         // Mods
         ModLoader.loadAll("/mods")
     }
+
+    fun getUser(player: Player) = getUser(player.uniqueId)
+
+    fun getUser(uuid: UUID) = userManager.getUser(uuid)
 
 }
