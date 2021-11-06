@@ -37,7 +37,7 @@ class SquidGame(gameId: UUID) : Game(gameId) {
         timer = Timer()
 
         context.on<PlayerJoinEvent> {
-            PreparePlayer(player)
+            PreparePlayer(player, context)
         }
 
         context.on<BlockRedstoneEvent> { newCurrent = oldCurrent }

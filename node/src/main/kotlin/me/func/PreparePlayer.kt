@@ -1,13 +1,13 @@
 package me.func
 
+import dev.implario.bukkit.event.EventContext
 import dev.implario.games5e.sdk.cristalix.ModLoader
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
-object PreparePlayer : (Player) -> (Unit) {
+object PreparePlayer : (Player, EventContext) -> (Unit) {
 
-    override fun invoke(player: Player) {
-        Bukkit.getScheduler().runTaskLater(app, { ModLoader.manyToOne(player) }, 1)
+    override fun invoke(player: Player, context: EventContext) {
+        context.after(1) { ModLoader.manyToOne(player) }
     }
 
 }

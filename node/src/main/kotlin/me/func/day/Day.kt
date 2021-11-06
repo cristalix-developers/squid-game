@@ -13,6 +13,8 @@ interface Day {
 
     fun tick(time: Int): Int
 
-    fun handlers(context: EventContext)
+    fun registerHandlers(context: EventContext)
+
+    fun unregisterAll()
 
 }
