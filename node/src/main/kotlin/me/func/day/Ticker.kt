@@ -2,6 +2,8 @@ package me.func.day
 
 import me.func.SquidGame
 import me.func.app
+import me.func.mod.ModHelper
+import org.bukkit.Color
 import org.bukkit.scheduler.BukkitRunnable
 
 class Timer(private val game: SquidGame) : BukkitRunnable() {
@@ -15,7 +17,10 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
         if (dayBefore != activeDay) {
             game.context.unregisterAll()
             activeDay.handlers(game.fork())
-            game.players.forEach { activeDay.join(app.getUser(it.player)) }
+            game.players.map { app.getUser(it.player) }.forEach {
+                activeDay.join(it)
+                ModHelper.timer(it, "Начало следующего испытания", activeDay.duration(), Color.AQUA)
+            }
             // state change
         }
     }

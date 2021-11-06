@@ -50,7 +50,7 @@ object TimeBar {
         }
 
         App::class.mod.registerChannel("func:bar") {
-            val text = NetUtil.readUtf8(this) + "00:00"
+            val text = NetUtil.readUtf8(this) + " 00:00"
             time = this.readInt()
 
             if (time == 0) {
