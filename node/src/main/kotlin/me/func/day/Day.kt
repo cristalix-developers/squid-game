@@ -6,15 +6,13 @@ import me.func.user.User
 interface Day {
 
     fun join(user: User)
-
-    fun duration(): Int
-
-    fun tryFinish(): Boolean
-
     fun tick(time: Int): Int
-
     fun registerHandlers(context: EventContext)
-
-    fun unregisterAll()
+    fun start()
+    fun startPersonal(user: User)
+    val duration: Int
+    val title: String
+    val description: Array<String>
+    val fork: EventContext
 
 }

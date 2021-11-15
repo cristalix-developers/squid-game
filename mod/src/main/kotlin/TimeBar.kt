@@ -44,13 +44,13 @@ object TimeBar {
             if (System.currentTimeMillis() - currentTime > 1000) {
                 time--
                 currentTime = System.currentTimeMillis()
-                content.content = content.content.dropLast(5) + (time / 60).toString()
-                    .padStart(2, '0') + ":" + (time % 60).toString().padStart(2, '0')
+                content.content = content.content.dropLast(7) + (time / 60).toString()
+                    .padStart(2, '0') + ":" + (time % 60).toString().padStart(2, '0') + " ⏳"
             }
         }
 
         App::class.mod.registerChannel("func:bar") {
-            val text = NetUtil.readUtf8(this) + " 00:00"
+            val text = NetUtil.readUtf8(this) + " XX:XX ⏳"
             time = this.readInt()
 
             if (time == 0) {
@@ -58,10 +58,6 @@ object TimeBar {
                 cooldown.enabled = false
                 return@registerChannel
             }
-
-            cooldown.color.red = readInt()
-            cooldown.color.green = readInt()
-            cooldown.color.blue = readInt()
 
             cooldown.enabled = true
             content.content = text

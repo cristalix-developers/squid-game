@@ -2,6 +2,7 @@ package me.func.user
 
 import dev.implario.kensuke.KensukeSession
 import dev.implario.kensuke.impl.bukkit.IBukkitKensukeUser
+import me.func.day.detail.Figure
 import net.minecraft.server.v1_12_R1.Packet
 import net.minecraft.server.v1_12_R1.PlayerConnection
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
@@ -11,18 +12,18 @@ import java.util.*
 class User(session: KensukeSession, stat: UserData?) : IBukkitKensukeUser {
 
     private var connection: PlayerConnection? = null
+    var team: Figure? = null
+    var spectator = false
+    var roundWinner = true
     var stat: UserData
+    var number = 0
 
-    private var player: Player? = null
+    private lateinit var player: Player
     override fun setPlayer(p0: Player?) {
-        if (p0 != null) {
-            player = p0
-        }
+        player = p0!!
     }
 
-    override fun getPlayer(): Player? {
-        return player
-    }
+    override fun getPlayer() = player
 
     private var session: KensukeSession
     override fun getSession(): KensukeSession {
