@@ -1,4 +1,4 @@
-package me.func.day.detail
+package me.func.day.play.tug
 
 import me.func.user.User
 import org.bukkit.Location

@@ -1,4 +1,4 @@
-package me.func.day.detail
+package me.func.day.play.glass
 
 import org.bukkit.Location
 import org.bukkit.Material

@@ -1,4 +1,4 @@
-package me.func.day.play
+package me.func.day.play.night
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on

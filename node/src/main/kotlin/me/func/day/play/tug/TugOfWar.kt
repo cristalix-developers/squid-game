@@ -1,4 +1,4 @@
-package me.func.day.play
+package me.func.day.play.tug
 
 import com.destroystokyo.paper.event.player.PlayerUseUnknownEntityEvent
 import dev.implario.bukkit.event.EventContext
@@ -8,8 +8,6 @@ import me.func.AcceptLose
 import me.func.SquidGame
 import me.func.app
 import me.func.day.Day
-import me.func.day.WaitingGame
-import me.func.day.detail.TugTeam
 import me.func.day.misc.Bonus
 import me.func.day.misc.Workers
 import me.func.mod.ModHelper
@@ -22,13 +20,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.player.PlayerFishEvent
-import org.bukkit.event.player.PlayerPickupItemEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.metadata.FixedMetadataValue
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
-import sun.audio.AudioPlayer.player
 import java.util.*
 
 class TugOfWar(private val game: SquidGame) : Day {

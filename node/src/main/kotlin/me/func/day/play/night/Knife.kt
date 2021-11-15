@@ -1,4 +1,4 @@
-package me.func.day.detail
+package me.func.day.play.night
 
 import dev.implario.bukkit.item.item
 import me.func.app

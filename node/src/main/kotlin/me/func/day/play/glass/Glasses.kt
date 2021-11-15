@@ -1,4 +1,4 @@
-package me.func.day.play
+package me.func.day.play.glass
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
@@ -7,7 +7,6 @@ import me.func.AcceptRoundWin
 import me.func.SquidGame
 import me.func.app
 import me.func.day.Day
-import me.func.day.detail.Glass
 import me.func.day.misc.Workers
 import me.func.mod.ModHelper
 import me.func.user.User

@@ -1,12 +1,12 @@
-package me.func.day.detail
+package me.func.day.play.figure
 
 import implario.humanize.Humanize
 import me.func.AcceptLose
 import me.func.SquidGame
+import me.func.day.detail.Figure
 import me.func.mod.ModHelper
 import me.func.user.User
 import org.bukkit.Location
-import org.bukkit.Material
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 

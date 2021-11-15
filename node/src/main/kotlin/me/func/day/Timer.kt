@@ -4,6 +4,10 @@ import me.func.AcceptLose
 import me.func.NEED_PLAYERS
 import me.func.SquidGame
 import me.func.day.play.*
+import me.func.day.play.figure.BreakForm
+import me.func.day.play.girl.GreenLight
+import me.func.day.play.glass.Glasses
+import me.func.day.play.tug.TugOfWar
 import me.func.mod.ModHelper
 import me.func.util.Music
 import me.func.util.MusicHelper

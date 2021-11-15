@@ -2,18 +2,12 @@ package me.func.day
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
-import me.func.NEED_PLAYERS
 import me.func.SquidGame
-import me.func.day.play.BreakForm
-import me.func.day.play.DeathRun
-import me.func.day.play.Glasses
-import me.func.day.play.TntRun
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.util.Music
 import org.bukkit.GameMode
 import org.bukkit.event.entity.EntityDamageEvent
-import ru.cristalix.core.formatting.Formatting
 
 class WaitingGame(private val game: SquidGame) : Day {
 

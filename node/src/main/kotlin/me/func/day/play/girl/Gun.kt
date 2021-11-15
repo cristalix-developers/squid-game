@@ -1,4 +1,4 @@
-package me.func.day.detail
+package me.func.day.play.girl
 
 import me.func.util.StandHelper
 import net.minecraft.server.v1_12_R1.EnumItemSlot

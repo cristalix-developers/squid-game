@@ -1,15 +1,12 @@
-package me.func.day.play
+package me.func.day.play.figure
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.item.item
-import me.func.AcceptLose
 import me.func.AcceptRoundWin
 import me.func.SquidGame
 import me.func.app
 import me.func.day.Day
-import me.func.day.detail.BreakFormTeam
-import me.func.day.detail.Cookie
 import me.func.day.detail.Figure
 import me.func.mod.ModHelper
 import me.func.user.User
@@ -20,10 +17,6 @@ import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerMoveEvent
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
-import ru.cristalix.npcs.server.Npcs.spawn
-import kotlin.properties.Delegates
 
 class BreakForm(private val game: SquidGame) : Day {
 

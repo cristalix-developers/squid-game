@@ -1,5 +1,6 @@
-package me.func.day.detail
+package me.func.day.play.figure
 
+import me.func.day.detail.Figure
 import me.func.user.User
 import org.bukkit.Location
 

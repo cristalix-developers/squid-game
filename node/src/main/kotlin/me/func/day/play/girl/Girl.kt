@@ -1,9 +1,8 @@
-package me.func.day.detail
+package me.func.day.play.girl
 
 import dev.implario.bukkit.item.item
 import me.func.SquidGame
 import me.func.mod.ModHelper
-import me.func.util.Music
 import me.func.util.StandHelper
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import org.bukkit.Location
