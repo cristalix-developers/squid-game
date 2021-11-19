@@ -17,7 +17,6 @@ class DeathRun(private val game: SquidGame) : Day {
 
     override val duration = 1 * 60 + 10
     override val description = arrayOf(
-        "§fИспытание §b§l#4§b: Переход",
         "   §7Вам нужно подниматься,",
         "   §7чтобы наводняющая вода",
         "   §7не убила вас."
@@ -51,10 +50,10 @@ class DeathRun(private val game: SquidGame) : Day {
             game.getUsers().forEach {
                 if (underWater(it)) {
                     ModHelper.glow(it, 42, 189, 102)
-                    if (!it.spectator)
+                    if (!it.spectator && !it.roundWinner)
                         AcceptLose.accept(game, it)
                 }
-                if (!it.roundWinner && !it.spectator && spawn.y + deltaY - okayLevel < it.player.location.y) {
+                if (!it.roundWinner && !it.spectator && spawn.y + deltaY - okayLevel * 3 < it.player.location.y) {
                     AcceptRoundWin.accept(game, it)
                 }
             }
@@ -76,18 +75,21 @@ class DeathRun(private val game: SquidGame) : Day {
             copy.set(barrierMin.x + it, barrierMin.y + 1, barrierMin.z)
             copy.block.setTypeAndDataFast(0, 0)
         }
-        game.getUsers().forEach { startPersonal(it) }
+        game.getUsers().forEach {
+            startPersonal(it)
+            it.roundWinner = false
+        }
     }
 
     override fun startPersonal(user: User) {
         Music.FUN.play(user)
         game.after(handicap * 20L) {
             ModTransfer()
-                .integer(duration)
+                .integer(duration - handicap / 3)
                 .integer(deltaY)
                 .send("func:water-move", user)
         }
-        ModHelper.title(user, "§cБеги! Беги! Беги!")
+        user.roundWinner = true
     }
 
     private fun underWater(user: User): Boolean {

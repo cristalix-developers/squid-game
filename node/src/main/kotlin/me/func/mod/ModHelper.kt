@@ -1,5 +1,6 @@
 package me.func.mod
 
+import me.func.SquidGame
 import me.func.user.User
 import org.bukkit.Location
 import org.bukkit.entity.EntityType
@@ -29,6 +30,16 @@ object ModHelper {
         ModTransfer()
             .string(text)
             .send("func:notice", user)
+    }
+
+    fun notifyAll(game: SquidGame, text: String) {
+        game.getUsers().forEach { notify(it, text) }
+    }
+
+    fun attention(user: User) {
+        ModTransfer()
+            .integer(0)
+            .send("func:attention", user)
     }
 
     fun clearAllCorpses(user: User) {

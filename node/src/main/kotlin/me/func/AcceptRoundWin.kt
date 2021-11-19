@@ -16,11 +16,10 @@ object AcceptRoundWin : BiConsumer<SquidGame, User> {
 
         val player = user.player
 
-        Firework.generate(player.location, game.context, Color.AQUA, Color.LIME)
-        game.getUsers().forEach {
-            ModHelper.notify(it, "§b${user.player.name} §f#${user.number} §7прошел испытание.")
-        }
+        if (Math.random() < 0.3)
+            Firework.generate(player.location, game.context, Color.AQUA, Color.LIME)
 
+        ModHelper.notifyAll(game, "§b${user.player.name} §f#${user.number} §7прошел испытание.")
         ModHelper.glow(user, 0, 0, 255)
     }
 }

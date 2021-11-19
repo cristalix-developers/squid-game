@@ -70,6 +70,42 @@ object TimeBar {
             }
         }
 
+        fun dropNumber(text: String, size: Double, light: Color) {
+            val item = text {
+                align = CENTER
+                origin = CENTER
+                properties[Property.ParentSizeX] *= 0.8
+                color = light
+                shadow = true
+                content = text
+            }
+
+            UIEngine.overlayContext + item
+
+            item.animate(0.45, Easings.BACK_BOTH) {
+                scale.x *= size
+                scale.y *= size
+            }
+            UIEngine.schedule(0.45) {
+                item.animate(0.15) {
+                    rotation = Rotation(Math.PI / 4, 0.0, 0.0, 1.0)
+                    color.alpha = 0.1
+                }
+            }
+            UIEngine.schedule(0.65) {
+                UIEngine.overlayContext.removeChild(item)
+            }
+        }
+
+        App::class.mod.registerChannel("func:attention") {
+            val secondsTotal = 3
+
+            dropNumber(3.toString(), 5.0, Color(255, 255, 85))
+            UIEngine.schedule((secondsTotal - 1.0) / 3) { dropNumber(2.toString(), 5.2, Color(255, 85, 85)) }
+            UIEngine.schedule((secondsTotal - 1.0) / 3 * 2) { dropNumber(1.toString(), 5.5, Color(170, 10, 10)) }
+            UIEngine.schedule((secondsTotal - 1.0) / 3 * 3) { dropNumber("ПОЕХАЛИ!", 2.2, Color(100, 255, 100)) }
+        }
+
         UIEngine.overlayContext + cooldown
     }
 }

@@ -7,6 +7,7 @@ import me.func.day.play.*
 import me.func.day.play.figure.BreakForm
 import me.func.day.play.girl.GreenLight
 import me.func.day.play.glass.Glasses
+import me.func.day.play.night.Night
 import me.func.day.play.tug.TugOfWar
 import me.func.mod.ModHelper
 import me.func.util.Music
@@ -22,6 +23,7 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
     var activeDay: Day = WaitingGame(game)
     private lateinit var dayBefore: Day
     var stop = false
+    var dayIndex = 0
 
     private lateinit var days: MutableList<Day>
 
@@ -43,11 +45,12 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
 
         if (time / 20 > activeDay.duration) {
             if (activeDay is WaitingGame) {
+                days = mutableListOf(GreenLight(game))
+            } else if (activeDay is GreenLight) {
                 days = mutableListOf(
                     BreakForm(game),
                     DeathRun(game),
                     Glasses(game),
-                    GreenLight(game),
                     Night(game),
                     TntRun(game),
                     TugOfWar(game)
@@ -60,17 +63,23 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
     private fun changeDay() {
         time = 0
 
+        if (days.isEmpty()) {
+            game.close()
+            return
+        }
+
         // Загрузка следующего дня
-        //game.games.remove(activeDay)
         dayBefore = activeDay
         activeDay = days.random()
         days.remove(activeDay)
+        dayIndex++
 
         game.getUsers().forEach { user ->
             // Паранойя
             user.player.inventory.clear()
             user.player.openInventory.topInventory.clear()
             user.player.itemOnCursor = null
+            user.player.sendMessage("§fИспытание §b§l#$dayIndex§b: ${activeDay.title}")
             user.player.sendMessage(activeDay.description)
             user.player.activePotionEffects.forEach { user.player.removePotionEffect(it.type) }
             ModHelper.clearAllCorpses(user)
@@ -89,14 +98,16 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
 
         activeDay.fork.after(1 * 20) {
             game.getUsers().forEach {
-                ModHelper.title(it, "§b§l#N\n\n§b${activeDay.title}")
                 ModHelper.timer(it, "Подготовка", PLAYER_PREPARE_DURATION)
                 ModHelper.notify(it, " §f► §bПодготовка игроков... §f◄ ")
             }
         }
 
-        activeDay.fork.after((PLAYER_PREPARE_DURATION - 3 + 2) * 20L) {
-            game.getUsers().forEach { Music.ATTENTION.play(it) }
+        activeDay.fork.after(((PLAYER_PREPARE_DURATION - 3 + 1.5) * 20L).toLong()) {
+            game.getUsers().forEach {
+                Music.ATTENTION.play(it)
+                ModHelper.attention(it)
+            }
         }
 
         activeDay.fork.after(PLAYER_PREPARE_DURATION * 20L + 40) {

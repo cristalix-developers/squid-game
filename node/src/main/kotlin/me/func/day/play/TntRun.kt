@@ -7,7 +7,6 @@ import me.func.SquidGame
 import me.func.app
 import me.func.day.Day
 import me.func.day.misc.Bonus
-import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.util.Music
 import org.bukkit.Material
@@ -23,7 +22,6 @@ class TntRun(private val game: SquidGame) : Day {
 
     override val duration = 1 * 60
     override val description = arrayOf(
-        "§fИспытание §b§l#2§b: Аккуратность",
         "   §7Бегите по блокам,",
         "   §7но продержитесь до",
         "   §7завершения."
@@ -31,7 +29,7 @@ class TntRun(private val game: SquidGame) : Day {
     override val title = "Аккуратность"
     override lateinit var fork: EventContext
 
-    private val bonus = game.map.getLabels("tnt-bonus")
+    private val bonus = game.map.getLabels("tnt-bonus").map { it.clone().add(0.0, 2.0, 0.0) }
     private val slow = PotionEffect(PotionEffectType.SLOW, 2 * 20, 2)
 
     override fun join(user: User) {
@@ -71,8 +69,24 @@ class TntRun(private val game: SquidGame) : Day {
 
     override fun startPersonal(user: User) {
         Music.FUN.play(user)
+
+        if (!user.spectator) {
+            val origin = bonus.random()
+            user.player.teleport(origin)
+            if (user.roundWinner) {
+                val size = 6
+                val start = user.player.location
+
+                repeat(size) { x ->
+                    repeat(size) { z ->
+                        start.set(origin.x - size / 2 + x, origin.y - 3, origin.z - size / 2 + z)
+                        start.block.type = Material.STAINED_CLAY
+                    }
+                }
+            }
+        }
+
         user.roundWinner = true
-        ModHelper.title(user, "§eБлоки исчезают!")
     }
 
     private fun downgrade(block: Block) {

@@ -6,8 +6,6 @@ import me.func.AcceptLose
 import me.func.SquidGame
 import me.func.app
 import me.func.day.Day
-import me.func.day.PLAYER_PREPARE_DURATION
-import me.func.day.detail.Knife
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.util.Music
@@ -25,7 +23,6 @@ class Night(private val game: SquidGame) : Day {
     override val duration = 1 * 60 + 20
     override lateinit var fork: EventContext
     override val description = arrayOf(
-        "§fИспытание §b§l#6§b: Ночная резня",
         "   §7Уменьшайте количество конкурентов",
         "   §7или прячьтесь от врагов.",
         "   §7Взяв нож вы должны убить",
@@ -37,7 +34,6 @@ class Night(private val game: SquidGame) : Day {
     private val generators = game.map.getLabels("knife").map { Knife(it) }
 
     override fun join(user: User) {
-        user.player.health = user.player.maxHealth
         user.player.teleport(game.spawns.random())
     }
 
@@ -48,6 +44,10 @@ class Night(private val game: SquidGame) : Day {
             }
 
             generators.filter { it.owner != null && it.drop == null }.forEach {
+                if (it.owner!!.spectator) {
+                    it.spawn()
+                    return@forEach
+                }
                 it.timeLeft--
                 if (it.timeLeft <= 0) {
                     AcceptLose.accept(game, it.owner!!)
@@ -69,13 +69,15 @@ class Night(private val game: SquidGame) : Day {
             }
         }
         fork.on<EntityDamageByEntityEvent> {
-            if (game.timer.stop)
+            if (game.timer.stop) {
+                isCancelled = true
                 return@on
+            }
             if (entity is Player && damager is Player && (damager as Player).itemInHand.getType() == Material.IRON_SWORD) {
                 val victim = entity as Player
 
                 damage = 0.0
-                victim.health -= 5
+                victim.health -= 2
                 if (victim.health >= HEALTH_BARRIER) {
                     val user = app.getUser(victim)
                     ModHelper.glow(user, 255, 0, 0)
@@ -87,6 +89,8 @@ class Night(private val game: SquidGame) : Day {
                         it.spawn()
                     }
                 }
+            } else {
+                isCancelled = true
             }
         }
         fork.on<EntityDamageEvent> {
@@ -104,6 +108,7 @@ class Night(private val game: SquidGame) : Day {
 
     override fun startPersonal(user: User) {
         Music.LOBBY.play(user)
+        user.player.health = user.player.maxHealth
         user.roundWinner = true
         user.player.addPotionEffect(blindness)
         user.player.teleport(game.spawns.random())

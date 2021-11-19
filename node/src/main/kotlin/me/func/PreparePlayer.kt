@@ -1,27 +1,55 @@
 package me.func
 
+import dev.implario.bukkit.item.item
 import dev.implario.games5e.sdk.cristalix.ModLoader
 import me.func.day.WaitingGame
 import me.func.mod.ModHelper
 import me.func.user.User
 import org.bukkit.GameMode
+import org.bukkit.Material
+import org.bukkit.enchantments.Enchantment
 
 object PreparePlayer : (User, SquidGame) -> (Unit) {
+
+    val musicOn = item {
+        type = Material.CLAY_BALL
+        nbt("other", "settings1")
+        text("§cОтключить музыку")
+    }
+
+    val musicOff = item {
+        type = Material.CLAY_BALL
+        enchant(Enchantment.LUCK, 1)
+        nbt("other", "settings1")
+        nbt("HideFlags", 63)
+        text("§bВключить музыку")
+    }
 
     override fun invoke(user: User, game: SquidGame) {
         game.context.after(1) {
             ModLoader.manyToOne(user.player)
 
+            val player = user.player
             val message: String
+            val group = game.permissions.getBestGroup(player.uniqueId).get()
+            val color = game.permissions.getNameColor(player.uniqueId).get()
+
+            user.stat.lastSeenName = "§7${group?.prefixColor ?: ""}" +
+                    (group?.prefix ?: "") +
+                    (if (group?.prefix?.isEmpty() == true) "" else " ") +
+                    (color ?: "") +
+                    player.name
 
             if (game.timer.activeDay is WaitingGame) {
                 user.player.gameMode = GameMode.ADVENTURE
                 user.roundWinner = true
                 user.number = getNumber(game)
-                user.player.displayName = "§7" +user.player.displayName + " §f#" + user.number
-                user.player.customName = user.player.displayName
+                user.player.displayName = user.stat.lastSeenName + " §f#" + user.number
+                user.player.customName = user.stat.lastSeenName
 
                 message = "§a${user.player.name} §f#${user.number} §7участвует."
+
+                player.inventory.setItem(8, if (user.stat.music) musicOff else musicOn)
             } else {
                 user.player.gameMode = GameMode.SPECTATOR
                 user.spectator = true

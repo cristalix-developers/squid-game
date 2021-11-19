@@ -2,12 +2,17 @@ package me.func.day
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
+import me.func.PreparePlayer.musicOff
+import me.func.PreparePlayer.musicOn
 import me.func.SquidGame
+import me.func.app
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.util.Music
+import me.func.util.MusicHelper
 import org.bukkit.GameMode
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.player.PlayerInteractEvent
 
 class WaitingGame(private val game: SquidGame) : Day {
 
@@ -33,13 +38,30 @@ class WaitingGame(private val game: SquidGame) : Day {
         user.player.gameMode = GameMode.ADVENTURE
     }
 
-    override val duration = 90
+    override val duration = 1 * 60
 
     override fun tick(time: Int) = time
 
     override fun registerHandlers(context: EventContext) {
         this.fork = context
         fork.on<EntityDamageEvent> { isCancelled = true }
+
+        fork.on<PlayerInteractEvent> {
+            if (hasItem()) {
+                val user = app.getUser(player)
+                user.stat.music = !user.stat.music
+
+                if (!user.stat.music) {
+                    player.itemInHand = musicOff
+                    ModHelper.notify(user, "§cМузыка выключена")
+                    MusicHelper.stop(user)
+                } else {
+                    player.itemInHand = musicOn
+                    ModHelper.notify(user, "§bМузыка выключена")
+                    Music.LOBBY.play(user)
+                }
+            }
+        }
     }
 
     override fun start() {}

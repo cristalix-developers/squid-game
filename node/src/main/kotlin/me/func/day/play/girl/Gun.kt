@@ -35,7 +35,7 @@ data class Gun(val location: Location, val uuid: UUID? = UUID.randomUUID()) {
     }
 
     fun refill(): Boolean {
-        if (bullet.location.y < 103) {
+        if (bullet.location.y < 103 || bullet.isOnGround) {
             bullet.setGravity(false)
             bullet.teleport(location)
             bullet.velocity = zero.clone()

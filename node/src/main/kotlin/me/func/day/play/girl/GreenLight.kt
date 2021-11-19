@@ -13,7 +13,9 @@ import me.func.day.misc.Workers
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.util.Music
+import org.bukkit.Material
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -22,20 +24,24 @@ import org.bukkit.util.Vector
 class GreenLight(private val game: SquidGame) : Day {
 
     override lateinit var fork: EventContext
-    override val duration = 1 * 60 + 15
+    override val duration = 1 * 60 + 20
     override val description = arrayOf(
-        "§fИспытание §b§l#1§b: Красный свет, зеленый свет",
         "   §7Стойте когда горит",
         "   §7красный и поспешите когда",
         "   §7виден зеленый, пересеките черту."
     )
     override val title = "§cКрасный §7свет, §aзеленый §7свет"
 
-    private val spawn = game.map.getLabels("day1").map { it.toCenterLocation().add(0.0, 1.5, 0.0) }
+    private val spawn = game.map.getLabels("day1").map {
+        val current = it.toCenterLocation().add(0.0, 1.5, 0.0)
+        current.yaw = -180f
+        current
+    }
     private val turrets = game.map.getLabels("gun").map { Gun(it) }.associateBy { it.uuid }
+    private val bonus = game.map.getLabels("boost").map { it.toCenterLocation() }
     private val girl = Girl(game.map.getLabel("girl"))
     private val effects = listOf(
-        PotionEffect(PotionEffectType.SLOW, duration * 20 * 2, 1),
+        PotionEffect(PotionEffectType.SLOW, duration * 20 * 2, 2),
         PotionEffect(PotionEffectType.JUMP, duration * 20 * 2, 255),
     )
 
@@ -50,13 +56,17 @@ class GreenLight(private val game: SquidGame) : Day {
         user.player.teleport(spawn.random())
     }
 
-    override fun tick(time: Int) = time
+    override fun tick(time: Int): Int {
+        if (time % 20 == 1) {
+            Bonus.WEB.drop(bonus.random().clone().add((Math.random() - 0.5) * 12, 1.5, (Math.random() - 0.5) * 12))
+            Bonus.SPEED.drop(bonus.random().clone().add((Math.random() - 0.5) * 12, 1.5, (Math.random() - 0.5) * 12))
+        }
+        return time
+    }
 
     override fun registerHandlers(context: EventContext) {
         fork = context
 
-        game.map.getLabels("boost").map { it.toCenterLocation().add(Math.random() * 8, 1.5, Math.random() * 8) }
-            .forEach { Bonus.SPEED.drop(it) }
         game.map.getLabels("circle1").forEach { Workers.CIRCLE.spawn(it) }
 
         val sounds = arrayOf(
@@ -67,22 +77,39 @@ class GreenLight(private val game: SquidGame) : Day {
 
         var soundLock = false
 
-        val period = 3.5
+        val period = 4.0
 
-        MutableList(((duration / period - 3).toInt())) {
+        MutableList(((duration / period - 1).toInt())) {
             (it + Math.random() / 2).toInt()
         }.forEach { time ->
-            game.context.after(((20 * (PLAYER_PREPARE_DURATION + period) + time * 20L * period).toLong())) {
+            game.context.after(((20 * (PLAYER_PREPARE_DURATION + period + 1) + time * 20L * period).toLong())) {
                 girl.rotate(game)
                 if (!girl.forwardView && !soundLock) {
                     soundLock = true
                     game.after((period / 1.5 * 20).toLong()) { soundLock = false }
                     val random = sounds.random()
-                    game.getUsers().forEach { random.play(it) }
+                    game.context.after(25) {
+                        game.getUsers().forEach { random.play(it) }
+                    }
                 }
             }
         }
 
+        fork.on<PlayerInteractEvent> {
+            if (hasItem()) {
+                if (item.getType() == Material.CLAY_BALL) {
+                    player.itemInHand = null
+                    player.removePotionEffect(PotionEffectType.SLOW)
+                    fork.after(6 * 20) { player.addPotionEffects(effects) }
+                } else if (item.getType() == Material.WEB){
+                    val web = game.map.world.spawnFallingBlock(player.eyeLocation, Material.WEB, 0)
+                    web.velocity = player.eyeLocation.direction
+                    web.dropItem = false
+                    player.itemInHand = null
+                    isCancelled = true
+                }
+            }
+        }
         fork.on<EntityDamageEvent> { isCancelled = true }
         fork.on<PlayerMoveEvent> {
             val user = app.getUser(player) ?: return@on
@@ -90,6 +117,7 @@ class GreenLight(private val game: SquidGame) : Day {
             if (to.z < deathLineZ && !user.spectator) {
                 if (!user.roundWinner) {
                     AcceptRoundWin.accept(game, user)
+                    player.removePotionEffect(PotionEffectType.SLOW)
                 } else if (to.z > deathLineZ - 2) {
                     player.velocity = Vector(0.0, 0.1, -0.3)
                 }
@@ -129,7 +157,6 @@ class GreenLight(private val game: SquidGame) : Day {
     }
 
     override fun startPersonal(user: User) {
-        ModHelper.title(user, "§eОсторожно!")
         user.player.addPotionEffects(effects)
     }
 

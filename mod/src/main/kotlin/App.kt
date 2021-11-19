@@ -1,8 +1,10 @@
 import dev.xdark.clientapi.event.render.*
+import dev.xdark.feder.NetUtil
 import ru.cristalix.clientapi.KotlinMod
+import ru.cristalix.clientapi.readDate
 import ru.cristalix.uiengine.UIEngine
-import ru.cristalix.uiengine.element.TextElement
-import ru.cristalix.uiengine.utility.*
+import sun.plugin2.message.PluginMessage
+import kotlin.math.abs
 
 const val NAMESPACE = "squidgame"
 const val FILE_STORE = "http://51.38.128.132"
@@ -19,6 +21,13 @@ class App : KotlinMod() {
         PlayerLeftManager
         BannerManager
         KillBoardManager
+
+        val texture = "figure.png"
+        loadTextures(
+            load(texture, "08832C088F83D" + abs(texture.hashCode())),
+        ).thenRun {
+            BuyRespawn
+        }
 
         registerHandler<HealthRender> { isCancelled = true }
         registerHandler<ExpBarRender> { isCancelled = true }

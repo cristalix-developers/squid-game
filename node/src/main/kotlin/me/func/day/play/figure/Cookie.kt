@@ -10,7 +10,7 @@ import org.bukkit.Location
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
-data class Cookie(val type: Figure, val spawn: Location, var hasOwner: Boolean = false, var hearts: Int = 2) {
+data class Cookie(val type: Figure, val spawn: Location, var hasOwner: Boolean = false, var hearts: Int = 1) {
 
     private val slowDigging = PotionEffect(PotionEffectType.SLOW_DIGGING, 4 * 20, 255)
 

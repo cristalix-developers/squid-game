@@ -19,12 +19,11 @@ class Glasses(private val game: SquidGame) : Day {
     override val duration = 2 * 60
     override lateinit var fork: EventContext
     override val description = arrayOf(
-        "§fИспытание §b§l#5§b: Дорога стекл",
         "   §7Вам нужно выбирать одно",
-        "   §7ищ двух стекл, чтобы",
+        "   §7ищ двух стёкол, чтобы",
         "   §7дойти до конца вовремя."
     )
-    override val title = "Дорога стекл"
+    override val title = "Дорога стёкол"
 
     private val spawn = game.map.getLabel("day5").toCenterLocation()
     private val finish = game.map.getLabel("finish-glass").toCenterLocation()
@@ -55,11 +54,12 @@ class Glasses(private val game: SquidGame) : Day {
             isCancelled = true
         }
         fork.on<PlayerMoveEvent> {
-            if (game.timer.time == 0 && player.location.distanceSquared(spawn) > 5 * 5) {
+            val user = app.getUser(player)
+
+            if (!user.spectator && game.timer.time == 0 && player.location.distanceSquared(spawn) > 4 * 4) {
                 player.velocity = spawn.toVector().subtract(player.location.toVector()).multiply(0.08)
             }
 
-            val user = app.getUser(player)
             if (user.roundWinner || user.spectator || player.location.y < 111)
                 return@on
 
@@ -80,5 +80,10 @@ class Glasses(private val game: SquidGame) : Day {
 
     override fun startPersonal(user: User) {
         ModHelper.title(user, "§eВыбирайте из двух стекл")
+
+        if (!user.spectator) {
+            user.player.teleport(spawn)
+            user.roundWinner = false
+        }
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.server.v1_12_R1.Packet
 import net.minecraft.server.v1_12_R1.PlayerConnection
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
+import ru.cristalix.core.account.IAccountService
 import java.util.*
 
 class User(session: KensukeSession, stat: UserData?) : IBukkitKensukeUser {
@@ -17,6 +18,7 @@ class User(session: KensukeSession, stat: UserData?) : IBukkitKensukeUser {
     var roundWinner = true
     var stat: UserData
     var number = 0
+    var respawn = 0
 
     private lateinit var player: Player
     override fun setPlayer(p0: Player?) {
@@ -35,8 +37,7 @@ class User(session: KensukeSession, stat: UserData?) : IBukkitKensukeUser {
             UUID.fromString(session.userId),
             0, 0,
             0, 0, 0, 0,
-            true, 0, 0, 0, 0,
-            ""
+            true, 0, 0, 0, 0, null
         )
         this.session = session
     }

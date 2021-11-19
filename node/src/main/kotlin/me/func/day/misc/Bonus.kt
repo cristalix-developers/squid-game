@@ -13,10 +13,15 @@ enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolea
 
     SPEED(item {
         type = Material.CLAY_BALL
-        text("§bСкорость")
+        text("§bСкорость §l§fПКМ")
         nbt("bonus", "speed")
         nbt("museum", "small_crystal_blue")
-    }, false, { it.player.removePotionEffect(org.bukkit.potion.PotionEffectType.SLOW) }),
+    }, false, { }),
+    WEB(item {
+        type = Material.WEB
+        text("§bПаутина §l§fКИНУТЬ")
+        nbt("bonus", "web")
+    }, false, { }),
     SUPER_SONIC(item {
         type = Material.CLAY_BALL
         text("§bСкорость 1")
@@ -33,7 +38,7 @@ enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolea
     }),
     SNOWBALL(item {
         type = Material.SNOW_BALL
-        text("§bСнаряд")
+        text("§bСнаряд §l§fПКМ")
         nbt("bonus", "snowball")
     }, true, { }),
     JUMP(item {

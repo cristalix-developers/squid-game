@@ -12,7 +12,7 @@ enum class Music(private val url: String) {
     SHOOT("https://implario.dev/squidgame/shooting.mp3"),
     LOBBY("https://implario.dev/squidgame/lobby.mp3"),
     ATTENTION("https://implario.dev/squidgame/attention.mp3"),
-    FUN("https://implario.dev/squidgame/fun.mp3"),;
+    FUN("https://implario.dev/squidgame/fun.mp3"), ;
 
     fun play(user: User) {
         MusicHelper.play(user, url)
@@ -23,7 +23,8 @@ enum class Music(private val url: String) {
 object MusicHelper {
     fun play(user: User, url: String) {
         stop(user)
-        IDisplayService.get().sendRadio(user.player.uniqueId, RadioMessage(true, url))
+        if (user.stat.music)
+            IDisplayService.get().sendRadio(user.player.uniqueId, RadioMessage(true, url))
     }
 
     fun stop(user: User) {

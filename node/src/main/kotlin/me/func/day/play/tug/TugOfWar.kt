@@ -13,24 +13,28 @@ import me.func.day.misc.Workers
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.util.Music
+import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.Material
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand
 import org.bukkit.entity.FishHook
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.player.PlayerFishEvent
+import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.util.Vector
+import ru.cristalix.core.util.UtilEntity
 import java.util.*
+import kotlin.math.abs
 
 class TugOfWar(private val game: SquidGame) : Day {
 
     override lateinit var fork: EventContext
     override val duration = 1 * 60 + 20
     override val description = arrayOf(
-        "§fИспытание §b§l#3§b: Перетягивание каната",
         "   §7Поднимитесь на мост и",
         "   §7зацепите соперника, чтобы",
         "   §7скинуть его вниз",
@@ -38,6 +42,7 @@ class TugOfWar(private val game: SquidGame) : Day {
     override val title = "Перетягивание каната"
 
     private val spawn = game.map.getLabel("day3").toCenterLocation()
+    private val center = game.map.getLabel("tug-center").toCenterLocation()
     private val teams = game.map.getLabels("tug")
         .map { TugTeam(UUID.randomUUID(), it.toCenterLocation(), mutableSetOf()) }
         .associateBy { it.uuid }
@@ -58,14 +63,27 @@ class TugOfWar(private val game: SquidGame) : Day {
     }
 
     override fun tick(time: Int): Int {
-        if (game.timer.stop && game.timer.time > 0) {
-            getWeakTeam().players.forEach { it.roundWinner = false }
+        if (!game.timer.stop) {
+            teams.values.forEach { team ->
+                val pose = team.gear.headPose
+                pose.y += Math.PI / 14
+                team.gear.headPose = pose
+
+                val location = team.gear.location
+                val dx = (center.x - location.x) / duration / 17
+                (team.gear as CraftArmorStand).handle.move(EnumMoveType.SELF, dx, 0.0, 0.0,)
+
+                team.players.filter { abs(center.x - it.player.location.x) + 2 > abs(center.x - location.x) }
+                    .forEach { it.player.velocity = Vector(dx * 50, 0.05, 0.0) }
+            }
         }
         return time
     }
 
     override fun registerHandlers(context: EventContext) {
         fork = context
+
+        spawn.yaw = 180f
 
         game.map.getLabels("tug-manager").forEach { Workers.TRIANGLE.spawn(it, "§e§lНАЖМИТЕ") }
         game.map.getLabels("tug-circle").forEach { Workers.CIRCLE.spawn(it, "§eСледуйте к мосту") }
@@ -74,6 +92,16 @@ class TugOfWar(private val game: SquidGame) : Day {
         fork.on<EntityDamageByEntityEvent> { cancelled = true }
 
         val upVector = Vector(0.0, 0.2, 0.0)
+        val downVector = Vector(0.0, -0.5, 0.0)
+
+        fork.on<PlayerMoveEvent> {
+            if (from.blockX != to.blockX || from.blockY != to.blockY || from.blockZ != to.blockZ) {
+                val user = app.getUser(player)
+                if (!user.spectator && abs(center.x - player.location.x) < 2.3 && center.y - 6 < player.location.y) {
+                    player.velocity = downVector
+                }
+            }
+        }
 
         fork.on<EntityDamageEvent> {
             if (cause == EntityDamageEvent.DamageCause.FALL) {
@@ -115,15 +143,17 @@ class TugOfWar(private val game: SquidGame) : Day {
             if (user.spectator)
                 return@on
 
-            if (teams.values.firstOrNull { it.players.contains(user) } != null)
-                return@on
-
             addToTeam(user)
         }
     }
 
     override fun start() {
         gameStarted = true
+
+        teams.values.forEach {
+            UtilEntity.setScale(it.gear, 4.1, 4.1, 4.1)
+        }
+
         game.getUsers().forEach {
             startPersonal(it)
         }
@@ -135,11 +165,13 @@ class TugOfWar(private val game: SquidGame) : Day {
             addToTeam(user)
         user.roundWinner = true
         user.player.inventory.addItem(hook)
-        ModHelper.title(user, "§bСкиньте соперника!")
     }
 
     private fun addToTeam(user: User) {
         if (user.spectator)
+            return
+
+        if (teams.values.firstOrNull { it.players.contains(user) } != null)
             return
 
         val team = getWeakTeam()

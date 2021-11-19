@@ -23,14 +23,11 @@ object TopCreator {
         blocks.location = location
         Boards.addBoard(blocks)
 
-        game.context.every(30 * 20) {
+        game.context.every(10 * 20) {
             app.kensuke.getLeaderboard(app.userManager, app.statScope, topArgs[2], 15).thenAccept {
                 blocks.clearContent()
 
                 for (entry in it) {
-                    if (entry.data.stat.lastSeenName == null || entry.data.stat.lastSeenName!!.isEmpty())
-                        entry.data.stat.lastSeenName =
-                            IAccountService.get().getNameByUuid(UUID.fromString(entry.data.session.userId)).get()
                     blocks.addContent(
                         UUID.fromString(entry.data.session.userId),
                         "" + entry.position,

@@ -20,9 +20,8 @@ import org.bukkit.event.player.PlayerMoveEvent
 
 class BreakForm(private val game: SquidGame) : Day {
 
-    override val duration = 1 * 30
+    override val duration = 1 * 25
     override val description = arrayOf(
-        "§fИспытание §b§l#7§b: Вырезание фигур",
         "   §7Киркой вырежьте фигуру,",
         "   §7тогда вы сможете спастись.",
     )
@@ -116,26 +115,23 @@ class BreakForm(private val game: SquidGame) : Day {
     }
 
     override fun start() {
-        game.getUsers().forEach { user ->
-            Music.FUN.play(user)
-
-            if (!user.spectator) {
-                startPersonal(user)
-
-                val cookie = cookies[user.team]!!.first { !it.hasOwner }
-                cookie.hasOwner = true
-                user.player.teleport(cookie.spawn)
-            } else {
-                user.player.teleport(cookies[Figure.values().random()]!![0].spawn)
-            }
-        }
+        game.getUsers().forEach { user -> startPersonal(user) }
     }
 
     override fun startPersonal(user: User) {
-        if (user.team == null)
-            user.team = teams.minBy { it.users.size }!!.team
-        user.player.gameMode = GameMode.SURVIVAL
-        user.player.inventory.addItem(pickaxe)
-        ModHelper.title(user, "§6Ломайте оранжевый контур!")
+        Music.FUN.play(user)
+
+        if (!user.spectator) {
+            if (user.team == null)
+                user.team = teams.minBy { it.users.size }!!.team
+            game.after(5) { user.player.gameMode = GameMode.SURVIVAL }
+            user.player.inventory.addItem(pickaxe)
+
+            val cookie = cookies[user.team]!!.first { !it.hasOwner }
+            cookie.hasOwner = true
+            user.player.teleport(cookie.spawn)
+        } else {
+            user.player.teleport(cookies[Figure.values().random()]!![0].spawn)
+        }
     }
 }

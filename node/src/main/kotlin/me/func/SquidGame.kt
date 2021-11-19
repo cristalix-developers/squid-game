@@ -8,13 +8,12 @@ import dev.implario.games5e.sdk.cristalix.Cristalix
 import dev.implario.games5e.sdk.cristalix.MapLoader
 import dev.implario.games5e.sdk.cristalix.WorldMeta
 import implario.games.node.Game
-import me.func.day.Day
 import me.func.day.Timer
 import me.func.day.misc.Bonus
 import me.func.day.misc.Workers
-import me.func.day.play.*
 import me.func.mod.ModHelper
 import me.func.util.TopCreator
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.Player
@@ -25,15 +24,17 @@ import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
+import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
+import ru.cristalix.core.permissions.IPermissionService
+import ru.cristalix.core.permissions.PermissionService
 import java.util.*
 
 
 class SquidGame(gameId: UUID) : Game(gameId) {
     var timer = Timer(this)
-
-    private val cristalix: Cristalix = Cristalix.connectToCristalix(this, "TEST", "Игра в Кальмара")
-
+    val cristalix: Cristalix = Cristalix.connectToCristalix(this, "TEST", "Игра в Кальмара")
     val map = WorldMeta(MapLoader().load("SquidGame", "prod"))
 
     override fun acceptPlayer(event: AsyncPlayerPreLoginEvent): Boolean {
@@ -51,7 +52,11 @@ class SquidGame(gameId: UUID) : Game(gameId) {
 
     fun getVictims() = getUsers().filter { !it.spectator }
 
+    val permissions = PermissionService(cristalix.client)
+
     init {
+        app.core.registerService(IPermissionService::class.java, permissions)
+
         context.appendOption(WorldEventFilter(map.world))
 
         // may delete
@@ -65,8 +70,8 @@ class SquidGame(gameId: UUID) : Game(gameId) {
             Workers.CIRCLE.spawn(it)
         }
 
-        TopCreator.create(this, map.getLabel("top-wins")) { it.wins.toString() }
-        TopCreator.create(this, map.getLabel("top-games")) { it.games.toString() }
+        TopCreator.create(this, map.getLabel("top-wins")) { " " + it.wins }
+        TopCreator.create(this, map.getLabel("top-games")) { " " + it.games }
 
         timer.runTaskTimer(app, 10, 1)
         timer.activeDay.registerHandlers(context.fork())
@@ -75,17 +80,16 @@ class SquidGame(gameId: UUID) : Game(gameId) {
             PreparePlayer(app.getUser(player), this@SquidGame)
         }
 
+        context.on<AsyncPlayerChatEvent> {
+            format = "%1\$s → §7%2\$s"
+        }
+
         context.on<PlayerQuitEvent> {
             val count = getVictims().size
             getUsers().forEach {
                 ModHelper.notify(it, "§c${player.name} §7покинул игру.")
                 ModHelper.playersLeft(it, count)
             }
-        }
-
-        context.on<AsyncPlayerChatEvent> {
-            val user = app.getUser(player)
-            format = "%1\$s → §7%2\$s"
         }
 
         context.on<BlockRedstoneEvent> { newCurrent = oldCurrent }
@@ -105,6 +109,10 @@ class SquidGame(gameId: UUID) : Game(gameId) {
         context.on<PlayerAdvancementCriterionGrantEvent> { isCancelled = true }
         context.on<PlayerSwapHandItemsEvent> { isCancelled = true }
         context.on<InventoryClickEvent> { isCancelled = true }
+        context.on<InventoryOpenEvent> {
+            if (inventory.type != InventoryType.PLAYER)
+                isCancelled = true
+        }
         context.on<FoodLevelChangeEvent> { foodLevel = 20 }
         context.on<EntityDamageEvent> {
             if (entity is Player && (cause == EntityDamageEvent.DamageCause.FALL || cause == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)) {
@@ -122,6 +130,10 @@ class SquidGame(gameId: UUID) : Game(gameId) {
     }
 
     fun close() {
-        // todo: realize that
+        broadcast("Игра завершена!")
+
+        app.core.registerService(IPermissionService::class.java, permissions)
+
+        Bukkit.shutdown() // это для теста
     }
 }
