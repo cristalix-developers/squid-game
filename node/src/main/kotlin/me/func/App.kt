@@ -1,15 +1,16 @@
 package me.func
 
 import dev.implario.bukkit.platform.Platforms
+import dev.implario.games5e.node.DefaultGameNode
 import dev.implario.games5e.sdk.cristalix.ModLoader
 import dev.implario.kensuke.Kensuke
 import dev.implario.kensuke.Scope
 import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
-import implario.games.node.GameCreator
-import implario.games.node.GameNode
-import implario.games.node.linker.SessionBukkitLinker
+import dev.implario.games5e.node.GameCreator
+import dev.implario.games5e.node.GameNode
+import dev.implario.games5e.node.linker.SessionBukkitLinker
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.user.UserData
@@ -20,8 +21,6 @@ import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.BukkitPlatform
 import ru.cristalix.core.CoreApi
-import ru.cristalix.core.chat.BukkitChatService
-import ru.cristalix.core.chat.IChatService
 import ru.cristalix.core.datasync.EntityDataParameters
 import ru.cristalix.core.display.BukkitDisplayService
 import ru.cristalix.core.display.IDisplayService
@@ -64,7 +63,7 @@ class App : JavaPlugin() {
         Npcs.init(this)
 
         // Games5e
-        val node = GameNode()
+        val node = DefaultGameNode()
         node.supportedImagePrefixes.add("squid-game")
         node.linker = SessionBukkitLinker.link(node)
         node.gameCreator = GameCreator { gameId, _, _ ->

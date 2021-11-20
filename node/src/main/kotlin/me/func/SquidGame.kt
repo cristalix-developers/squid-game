@@ -4,10 +4,10 @@ import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent
 import dev.implario.bukkit.event.WorldEventFilter
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.world.Label
+import dev.implario.games5e.node.Game
 import dev.implario.games5e.sdk.cristalix.Cristalix
 import dev.implario.games5e.sdk.cristalix.MapLoader
 import dev.implario.games5e.sdk.cristalix.WorldMeta
-import implario.games.node.Game
 import me.func.day.Timer
 import me.func.day.misc.Bonus
 import me.func.day.misc.Workers

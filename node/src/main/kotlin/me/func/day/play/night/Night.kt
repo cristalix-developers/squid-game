@@ -63,7 +63,7 @@ class Night(private val game: SquidGame) : Day {
 
         fork.on<PlayerPickupItemEvent> {
             if (item.itemStack.getType() == Material.IRON_SWORD && !player.inventory.contains(Material.IRON_SWORD)) {
-                generators.minBy { it.generator.distanceSquared(player.location) }!!.get(app.getUser(player))
+                generators.minByOrNull { it.generator.distanceSquared(player.location) }!!.get(app.getUser(player))
             } else {
                 isCancelled = true
             }

@@ -75,7 +75,7 @@ class BreakForm(private val game: SquidGame) : Day {
                 return@on
             }
             val team = user.team
-            val cookie = cookies[team]?.filter { it.hasOwner }?.minBy { it.spawn.distanceSquared(block.location) }
+            val cookie = cookies[team]?.filter { it.hasOwner }?.minByOrNull { it.spawn.distanceSquared(block.location) }
 
             if (cookie != null) {
                 cookie.acceptBlockBreak(game, user, block.location)
@@ -92,7 +92,7 @@ class BreakForm(private val game: SquidGame) : Day {
                 if (user.spectator)
                     return@on
 
-                val nearestTeam = teams.minBy { it.point.distanceSquared(to) }!!
+                val nearestTeam = teams.minByOrNull { it.point.distanceSquared(to) }!!
 
                 if (to.z > nearestTeam.min.z || nearestTeam.users.contains(user))
                     return@on
@@ -123,7 +123,7 @@ class BreakForm(private val game: SquidGame) : Day {
 
         if (!user.spectator) {
             if (user.team == null)
-                user.team = teams.minBy { it.users.size }!!.team
+                user.team = teams.minByOrNull { it.users.size }!!.team
             game.after(5) { user.player.gameMode = GameMode.SURVIVAL }
             user.player.inventory.addItem(pickaxe)
 

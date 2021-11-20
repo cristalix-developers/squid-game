@@ -108,7 +108,7 @@ class TugOfWar(private val game: SquidGame) : Day {
                 val user = app.getUser(entity as Player)
                 val team = getTeamByUser(user)
                 team.players.remove(user)
-                Bonus.JUMP.drop(bonus.minBy { it.distanceSquared(team.spawn) }!!)
+                Bonus.JUMP.drop(bonus.minByOrNull { it.distanceSquared(team.spawn) }!!)
                 AcceptLose.accept(game, user)
             }
         }
@@ -182,7 +182,7 @@ class TugOfWar(private val game: SquidGame) : Day {
     }
 
     private fun getWeakTeam(): TugTeam {
-        return teams.values.minBy { it.players.size }!!
+        return teams.values.minByOrNull { it.players.size }!!
     }
 
     private fun getTeamByUser(user: User): TugTeam {
