@@ -1,6 +1,7 @@
 package me.func
 
 import dev.implario.bukkit.platform.Platforms
+import dev.implario.games5e.node.CoordinatorClient
 import dev.implario.games5e.node.DefaultGameNode
 import dev.implario.games5e.sdk.cristalix.ModLoader
 import dev.implario.kensuke.Kensuke
@@ -69,7 +70,9 @@ class App : JavaPlugin() {
         node.gameCreator = GameCreator { gameId, _, _ ->
             SquidGame(gameId)
         }
-        node.createGame(UUID.randomUUID(), null, null)
+
+        val coordinatorClient = CoordinatorClient(node)
+//        node.createGame(UUID.randomUUID(), null, null)
 
         // Kensuke moment
         kensuke = BukkitKensuke.setup(app)
@@ -79,6 +82,8 @@ class App : JavaPlugin() {
 
         // Mods
         ModLoader.loadAll("/mods")
+
+        coordinatorClient.enable()
 
         // Respawn
         Bukkit.getMessenger().registerIncomingPluginChannel(app, "func:respawn") { _, player, _ ->
