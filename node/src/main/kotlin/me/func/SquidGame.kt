@@ -29,10 +29,15 @@ import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
 import ru.cristalix.core.permissions.IPermissionService
 import ru.cristalix.core.permissions.PermissionService
+import ru.cristalix.core.transfer.ITransferService
+import ru.cristalix.core.transfer.TransferService
 import java.util.*
 
+data class SquidGameSettings(
+    val teams: List<List<UUID>>
+)
 
-class SquidGame(gameId: UUID) : Game(gameId) {
+class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
     var timer = Timer(this)
     val cristalix: Cristalix = Cristalix.connectToCristalix(this, "TEST", "Игра в Кальмара")
     val map = WorldMeta(MapLoader().load("SquidGame", "prod"))
@@ -127,6 +132,9 @@ class SquidGame(gameId: UUID) : Game(gameId) {
                     isCancelled = true
             }
         }
+
+        val flatten = settings.teams.flatten()
+        TransferService(cristalix.client).transferBatch(flatten, cristalix.realmId)
     }
 
     fun close() {

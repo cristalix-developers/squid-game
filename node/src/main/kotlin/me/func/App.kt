@@ -1,5 +1,6 @@
 package me.func
 
+import com.google.gson.Gson
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.games5e.node.CoordinatorClient
 import dev.implario.games5e.node.DefaultGameNode
@@ -67,8 +68,9 @@ class App : JavaPlugin() {
         val node = DefaultGameNode()
         node.supportedImagePrefixes.add("squid-game")
         node.linker = SessionBukkitLinker.link(node)
-        node.gameCreator = GameCreator { gameId, _, _ ->
-            SquidGame(gameId)
+        val gson = Gson()
+        node.gameCreator = GameCreator { gameId, _, settings ->
+            SquidGame(gameId, gson.fromJson(settings, SquidGameSettings::class.java))
         }
 
         val coordinatorClient = CoordinatorClient(node)
