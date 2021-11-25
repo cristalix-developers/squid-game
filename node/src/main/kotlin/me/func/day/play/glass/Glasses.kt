@@ -2,30 +2,32 @@ package me.func.day.play.glass
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
-import me.func.AcceptLose
-import me.func.AcceptRoundWin
+import me.func.accept.AcceptLose
+import me.func.accept.AcceptRoundWin
 import me.func.SquidGame
 import me.func.app
 import me.func.day.Day
 import me.func.day.misc.Workers
 import me.func.mod.ModHelper
+import me.func.mod.ModTransfer
 import me.func.user.User
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.util.Vector
+import ru.cristalix.core.formatting.Formatting
+
+const val GLASS_DURABILITY = 8
 
 class Glasses(private val game: SquidGame) : Day {
     override val duration = 2 * 60
     override lateinit var fork: EventContext
-    override val description = arrayOf(
-        "   §7Вам нужно выбирать одно",
-        "   §7ищ двух стёкол, чтобы",
-        "   §7дойти до конца вовремя."
-    )
+    override val description = "Вам нужно выбирать одно из\nдвух стёкол, чтобы победить"
     override val title = "Дорога стёкол"
 
     private val spawn = game.map.getLabel("day5").toCenterLocation()
+    private val alert = game.map.getLabel("alert")
     private val finish = game.map.getLabel("finish-glass").toCenterLocation()
     private val glasses = game.map.getLabels("glass").map {
         val leftGlassIsStrong = Math.random() > 0.5 // шанс того, что левое стекло прочное
@@ -36,7 +38,14 @@ class Glasses(private val game: SquidGame) : Day {
     }.flatten()
 
     override fun join(user: User) {
-        user.player.teleport(spawn)
+        user.player?.teleport(spawn)
+
+        ModTransfer()
+            .double(alert.x + 4.5)
+            .double(alert.y + 4.5)
+            .double(alert.z + 4.5)
+            .integer(GLASS_DURABILITY)
+            .send("func:glass-alert", user)
     }
 
     override fun tick(time: Int) = time
@@ -49,8 +58,10 @@ class Glasses(private val game: SquidGame) : Day {
         val nullVector = Vector(0.0, 0.0, 0.0)
 
         fork.on<EntityDamageEvent> {
-            if (cause == EntityDamageEvent.DamageCause.FALL && damage > 3.0)
+            if (entity is Player && cause == EntityDamageEvent.DamageCause.FALL && damage > 5.0) {
                 AcceptLose.accept(game, app.getUser(entity as Player))
+                app.getUser(entity as Player).hero = true
+            }
             isCancelled = true
         }
         fork.on<PlayerMoveEvent> {
@@ -67,22 +78,33 @@ class Glasses(private val game: SquidGame) : Day {
                 AcceptRoundWin.accept(game, user)
 
             val currentGlass = glasses.find { it.inside(player.location) }
-            if (currentGlass != null && !currentGlass.strong) {
-                currentGlass.kill()
-                player.velocity = nullVector
+            if (currentGlass != null) {
+                if (!currentGlass.strong) {
+                    currentGlass.kill()
+                    player.velocity = nullVector
+                } else if (game.getVictims().filter { currentGlass.inside(it.player!!.location) }.size >= GLASS_DURABILITY) {
+                    currentGlass.kill()
+                    game.broadcast(Formatting.error("Игроки сломали стекло!"))
+                    fork.after(20 * 2) {
+                        currentGlass.fill(Material.GLASS)
+                        currentGlass.standing = true
+                    }
+                }
             }
         }
     }
 
     override fun start() {
+        spawn.yaw = -180f
+
         game.getUsers().forEach { startPersonal(it) }
     }
 
     override fun startPersonal(user: User) {
-        ModHelper.title(user, "§eВыбирайте из двух стекл")
+        ModHelper.title(user, "§eВыбирайте из двух стекол")
 
         if (!user.spectator) {
-            user.player.teleport(spawn)
+            user.player?.teleport(spawn)
             user.roundWinner = false
         }
     }

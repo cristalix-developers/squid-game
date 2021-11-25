@@ -24,11 +24,11 @@ object MusicHelper {
     fun play(user: User, url: String) {
         stop(user)
         if (user.stat.music)
-            IDisplayService.get().sendRadio(user.player.uniqueId, RadioMessage(true, url))
+            IDisplayService.get().sendRadio(user.player?.uniqueId, RadioMessage(true, url))
     }
 
     fun stop(user: User) {
-        IDisplayService.get().sendRadio(user.player.uniqueId, RadioMessage(true, "null"))
+        IDisplayService.get().sendRadio(user.player?.uniqueId, RadioMessage(true, "null"))
     }
 
 }

@@ -21,6 +21,8 @@ class App : KotlinMod() {
         PlayerLeftManager
         BannerManager
         KillBoardManager
+        Winner
+        Alert
 
         val texture = "figure.png"
         loadTextures(
@@ -32,6 +34,7 @@ class App : KotlinMod() {
         registerHandler<HealthRender> { isCancelled = true }
         registerHandler<ExpBarRender> { isCancelled = true }
         registerHandler<HungerRender> { isCancelled = true }
+        registerHandler<PlayerListRender> { isCancelled = true }
         registerHandler<ArmorRender> { isCancelled = true }
         registerHandler<VehicleHealthRender> { isCancelled = true }
 

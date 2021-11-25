@@ -1,5 +1,6 @@
-package me.func
+package me.func.accept
 
+import me.func.SquidGame
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.util.Firework
@@ -17,9 +18,9 @@ object AcceptRoundWin : BiConsumer<SquidGame, User> {
         val player = user.player
 
         if (Math.random() < 0.3)
-            Firework.generate(player.location, game.context, Color.AQUA, Color.LIME)
+            Firework.generate(player!!.location, game.context, Color.AQUA, Color.LIME)
 
-        ModHelper.notifyAll(game, "§b${user.player.name} §f#${user.number} §7прошел испытание.")
+        ModHelper.notifyAll(game, "§b${user.player?.name} §f#${user.number} §7прошел испытание.")
         ModHelper.glow(user, 0, 0, 255)
     }
 }

@@ -25,9 +25,21 @@ object GlowEffect {
         }
     }
 
+    fun showAlways(red: Int, blue: Int, green: Int, power: Double) {
+        if (!added) {
+            UIEngine.overlayContext + vignette
+            added = true
+        }
+
+        vignette.color.red = red
+        vignette.color.blue = blue
+        vignette.color.green = green
+        vignette.color.alpha = power
+    }
+
     fun show(duration: Double, red: Int, blue: Int, green: Int, power: Double) {
         if (!added) {
-            UIEngine.overlayContext.addChild(vignette)
+            UIEngine.overlayContext + vignette
             added = true
         }
 

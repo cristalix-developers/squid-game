@@ -28,7 +28,7 @@ enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolea
         nbt("bonus", "super_sonic")
         nbt("museum", "small_crystal_blue")
     }, false, {
-        it.player.addPotionEffect(
+        it.player?.addPotionEffect(
             org.bukkit.potion.PotionEffect(
                 org.bukkit.potion.PotionEffectType.SPEED,
                 20 * 999,
@@ -48,7 +48,7 @@ enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolea
         nbt("bonus", "jump")
         nbt("random", Math.random() * 1000) // make item non-stackable
     }, false, {
-        it.player.addPotionEffect(
+        it.player?.addPotionEffect(
             org.bukkit.potion.PotionEffect(
                 org.bukkit.potion.PotionEffectType.JUMP,
                 20 * 999,
@@ -63,7 +63,7 @@ enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolea
     }
 
     fun give(user: User): Boolean {
-        if (stackable || !user.player.inventory.contains(itemStack)) {
+        if (stackable || !user.player!!.inventory.contains(itemStack)) {
             effect(user)
             ModHelper.glow(user, 42, 189, 102)
             return true

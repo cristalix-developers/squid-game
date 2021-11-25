@@ -2,8 +2,8 @@ package me.func.day.play
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
-import me.func.AcceptLose
-import me.func.AcceptRoundWin
+import me.func.accept.AcceptLose
+import me.func.accept.AcceptRoundWin
 import me.func.SquidGame
 import me.func.day.Day
 import me.func.mod.ModHelper
@@ -16,11 +16,7 @@ import java.util.*
 class DeathRun(private val game: SquidGame) : Day {
 
     override val duration = 1 * 60 + 10
-    override val description = arrayOf(
-        "   §7Вам нужно подниматься,",
-        "   §7чтобы наводняющая вода",
-        "   §7не убила вас."
-    )
+    override val description = "Вам нужно быстро убегать от\nотравленной воды"
     override val title = "Переход"
     override lateinit var fork: EventContext
 
@@ -32,7 +28,7 @@ class DeathRun(private val game: SquidGame) : Day {
     private val handicap = 4
 
     override fun join(user: User) {
-        user.player.teleport(spawn)
+        user.player?.teleport(spawn)
         ModHelper.banner(
             user,
             UUID.randomUUID(),
@@ -53,8 +49,9 @@ class DeathRun(private val game: SquidGame) : Day {
                     if (!it.spectator && !it.roundWinner)
                         AcceptLose.accept(game, it)
                 }
-                if (!it.roundWinner && !it.spectator && spawn.y + deltaY - okayLevel * 3 < it.player.location.y) {
+                if (!it.roundWinner && !it.spectator && spawn.y + deltaY - okayLevel * 3 < it.player!!.location.y) {
                     AcceptRoundWin.accept(game, it)
+                    it.timeOnDeathRun = (game.timer.time / 2.0).toInt() / 10.0
                 }
             }
         }
@@ -93,6 +90,6 @@ class DeathRun(private val game: SquidGame) : Day {
     }
 
     private fun underWater(user: User): Boolean {
-        return game.timer.time / 20 < duration && (game.timer.time / 20 - handicap) * deltaY / duration + spawn.y >= user.player.location.y + okayLevel
+        return game.timer.time / 20 < duration && (game.timer.time / 20 - handicap) * deltaY / duration + spawn.y >= user.player!!.location.y + okayLevel
     }
 }

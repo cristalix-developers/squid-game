@@ -1,6 +1,6 @@
 package me.func.day
 
-import me.func.AcceptLose
+import me.func.accept.AcceptLose
 import me.func.NEED_PLAYERS
 import me.func.SquidGame
 import me.func.day.play.*
@@ -10,6 +10,7 @@ import me.func.day.play.glass.Glasses
 import me.func.day.play.night.Night
 import me.func.day.play.tug.TugOfWar
 import me.func.mod.ModHelper
+import me.func.mod.ModTransfer
 import me.func.util.Music
 import me.func.util.MusicHelper
 import org.bukkit.GameMode
@@ -63,8 +64,14 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
     private fun changeDay() {
         time = 0
 
-        if (days.isEmpty()) {
-            game.close()
+        if (days.isEmpty() || game.getVictims().size < 5) {
+            if (activeDay !is WinnerRoom) {
+                activeDay = WinnerRoom(game)
+                activeDay.registerHandlers(game.fork())
+                game.getUsers().forEach { user -> activeDay.join(user) }
+            } else {
+                game.close()
+            }
             return
         }
 
@@ -74,14 +81,20 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
         days.remove(activeDay)
         dayIndex++
 
+        game.after(3 * 20) {
+            game.getUsers().forEach {
+                ModTransfer()
+                    .string(activeDay.title)
+                    .string(activeDay.description)
+                    .send("func:alert", it)
+            }
+        }
+
         game.getUsers().forEach { user ->
-            // Паранойя
-            user.player.inventory.clear()
-            user.player.openInventory.topInventory.clear()
-            user.player.itemOnCursor = null
-            user.player.sendMessage("§fИспытание §b§l#$dayIndex§b: ${activeDay.title}")
-            user.player.sendMessage(activeDay.description)
-            user.player.activePotionEffects.forEach { user.player.removePotionEffect(it.type) }
+            user.player!!.inventory.clear()
+            user.player!!.openInventory.topInventory.clear()
+            user.player!!.itemOnCursor = null
+            user.player!!.activePotionEffects.forEach { user.player!!.removePotionEffect(it.type) }
             ModHelper.clearAllCorpses(user)
             MusicHelper.stop(user)
 
@@ -128,7 +141,7 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
                 ModHelper.timer(it, "Смена испытания", DAY_CHANGE_DURATION)
                 ModHelper.notify(it, " §f► §eОжидайте новой игры §f◄ ")
                 if (!it.spectator) {
-                    it.player.gameMode = GameMode.ADVENTURE
+                    it.player?.gameMode = GameMode.ADVENTURE
                     if (!it.roundWinner)
                         AcceptLose.accept(game, it)
                 }

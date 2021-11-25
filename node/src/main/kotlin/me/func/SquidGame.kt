@@ -8,10 +8,13 @@ import dev.implario.games5e.node.Game
 import dev.implario.games5e.sdk.cristalix.Cristalix
 import dev.implario.games5e.sdk.cristalix.MapLoader
 import dev.implario.games5e.sdk.cristalix.WorldMeta
+import me.func.accept.PreparePlayer
 import me.func.day.Timer
 import me.func.day.misc.Bonus
 import me.func.day.misc.Workers
 import me.func.mod.ModHelper
+import me.func.top.BestUser
+import me.func.user.User
 import me.func.util.TopCreator
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -27,9 +30,6 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
-import ru.cristalix.core.permissions.IPermissionService
-import ru.cristalix.core.permissions.PermissionService
-import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
 import java.util.*
 
@@ -39,8 +39,9 @@ data class SquidGameSettings(
 
 class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
     var timer = Timer(this)
-    val cristalix: Cristalix = Cristalix.connectToCristalix(this, "TEST", "Игра в Кальмара")
+    val cristalix: Cristalix = Cristalix.connectToCristalix(this, "SQD", "Игра в Кальмара")
     val map = WorldMeta(MapLoader().load("SquidGame", "prod"))
+    val best = mutableMapOf<BestUser, User>()
 
     override fun acceptPlayer(event: AsyncPlayerPreLoginEvent): Boolean {
         if (MAX_PLAYERS > players.size || event.uniqueId.toString() == "307264a1-2c69-11e8-b5ea-1cb72caa35fd")
@@ -53,16 +54,14 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
 
     override fun getSpawnLocation(playerId: UUID): Location = spawn
 
-    fun getUsers() = players.mapNotNull { app.getUser(it) }
+    fun getUsers() = players.mapNotNull { app.getUser(it) }.filter { it.player != null }
 
     fun getVictims() = getUsers().filter { !it.spectator }
 
-    val permissions = PermissionService(cristalix.client)
-
     init {
-        app.core.registerService(IPermissionService::class.java, permissions)
-
         context.appendOption(WorldEventFilter(map.world))
+        cristalix.setRealmInfoBuilder { it.lobbyFallback(LOBBY_SERVER) }
+        cristalix.updateRealmInfo()
 
         // may delete
         map.world.loadChunk(map.world.getChunkAt(0, 0))
@@ -81,22 +80,25 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
         timer.runTaskTimer(app, 10, 1)
         timer.activeDay.registerHandlers(context.fork())
 
-        context.on<PlayerJoinEvent> {
-            PreparePlayer(app.getUser(player), this@SquidGame)
-        }
-
-        context.on<AsyncPlayerChatEvent> {
-            format = "%1\$s → §7%2\$s"
-        }
-
         context.on<PlayerQuitEvent> {
             val count = getVictims().size
             getUsers().forEach {
-                ModHelper.notify(it, "§c${player.name} §7покинул игру.")
+                ModHelper.notify(it, "§c${player.displayName} §7покинул игру.")
                 ModHelper.playersLeft(it, count)
             }
+
+            val user = app.getUser(player)
+
+            BestUser.values().forEach { tryUpdateBest(it, user) }
         }
 
+        context.on<PlayerJoinEvent> {
+            val user = app.getUser(player)
+            if (user.player == null)
+                user.player = player
+            PreparePlayer(app.getUser(player), this@SquidGame)
+        }
+        context.on<AsyncPlayerChatEvent> { format = "%1\$s → §7%2\$s" }
         context.on<BlockRedstoneEvent> { newCurrent = oldCurrent }
         context.on<BlockPlaceEvent> { isCancelled = true }
         context.on<CraftItemEvent> { isCancelled = true }
@@ -137,11 +139,19 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
         TransferService(cristalix.client).transferBatch(flatten, cristalix.realmId)
     }
 
+    fun tryUpdateBest(scoreType: BestUser, user: User) {
+        if (best[scoreType] == null || (best[scoreType] != null && scoreType.compare.compare(
+                best[scoreType],
+                user
+            ) == -1)
+        )
+            best[scoreType] = user
+    }
+
     fun close() {
-        broadcast("Игра завершена!")
+        getUsers().forEach { it.player?.kickPlayer("Игра завершена!") }
 
-        app.core.registerService(IPermissionService::class.java, permissions)
-
-        Bukkit.shutdown() // это для теста
+        Bukkit.unloadWorld(map.world, false)
+        unregisterAll()
     }
 }

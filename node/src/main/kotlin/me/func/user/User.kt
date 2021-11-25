@@ -18,11 +18,20 @@ class User(session: KensukeSession, stat: UserData?) : IBukkitKensukeUser {
     var roundWinner = true
     var stat: UserData
     var number = 0
-    var respawn = 0
 
-    private lateinit var player: Player
+    var respawn = 0
+    var kills = 0
+    var blockBreak = 0
+    var drownTime = Double.MAX_VALUE
+    var tugs = 0
+    var timeOnDeathRun = Double.MAX_VALUE
+    var firstDead = false
+    var hero = false
+    var timeOnGreenLight = Double.MAX_VALUE
+
+    private var player: Player? = null
     override fun setPlayer(p0: Player?) {
-        player = p0!!
+        player = p0
     }
 
     override fun getPlayer() = player
@@ -43,6 +52,8 @@ class User(session: KensukeSession, stat: UserData?) : IBukkitKensukeUser {
     }
 
     fun sendPacket(packet: Packet<*>) {
+        if (player == null)
+            return
         if (connection == null)
             connection = (player as CraftPlayer).handle.playerConnection
         connection?.sendPacket(packet)

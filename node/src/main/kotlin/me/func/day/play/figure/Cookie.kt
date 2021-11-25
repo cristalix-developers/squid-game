@@ -1,7 +1,7 @@
 package me.func.day.play.figure
 
 import implario.humanize.Humanize
-import me.func.AcceptLose
+import me.func.accept.AcceptLose
 import me.func.SquidGame
 import me.func.day.detail.Figure
 import me.func.mod.ModHelper
@@ -26,7 +26,7 @@ data class Cookie(val type: Figure, val spawn: Location, var hasOwner: Boolean =
             hearts--
             ModHelper.glow(user, 255, 0, 0)
             ModHelper.title(user, "Осталась $hearts ${Humanize.plurals("ошибка", "ошибки", "ошибок", hearts)}")
-            user.player.addPotionEffect(slowDigging)
+            user.player?.addPotionEffect(slowDigging)
         } else {
             AcceptLose.accept(game, user)
         }

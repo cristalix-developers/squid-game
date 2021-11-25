@@ -71,6 +71,7 @@ object BannerManager {
             banner.forEach { (_, it) -> UIEngine.worldContexts.remove(it) }
             banner.clear()
         }
+
         App::class.mod.registerChannel("func:water-move") {
             animation = true
             val duration = readInt()

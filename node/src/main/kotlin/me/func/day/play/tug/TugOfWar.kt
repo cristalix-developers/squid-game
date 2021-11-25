@@ -4,7 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerUseUnknownEntityEvent
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.item.item
-import me.func.AcceptLose
+import me.func.accept.AcceptLose
 import me.func.SquidGame
 import me.func.app
 import me.func.day.Day
@@ -34,12 +34,8 @@ class TugOfWar(private val game: SquidGame) : Day {
 
     override lateinit var fork: EventContext
     override val duration = 1 * 60 + 20
-    override val description = arrayOf(
-        "   §7Поднимитесь на мост и",
-        "   §7зацепите соперника, чтобы",
-        "   §7скинуть его вниз",
-    )
-    override val title = "Перетягивание каната"
+    override val description = "Зацепите соперника, чтобы скинуть его!"
+    override val title = "Перетягивание"
 
     private val spawn = game.map.getLabel("day3").toCenterLocation()
     private val center = game.map.getLabel("tug-center").toCenterLocation()
@@ -55,9 +51,12 @@ class TugOfWar(private val game: SquidGame) : Day {
         nbt("Unbreakable", 1)
     }
 
+    init {
+        spawn.yaw = -180f
+    }
 
     override fun join(user: User) {
-        user.player.teleport(spawn)
+        user.player?.teleport(spawn)
         if (game.timer.time > 0)
             startPersonal(user)
     }
@@ -73,8 +72,8 @@ class TugOfWar(private val game: SquidGame) : Day {
                 val dx = (center.x - location.x) / duration / 17
                 (team.gear as CraftArmorStand).handle.move(EnumMoveType.SELF, dx, 0.0, 0.0,)
 
-                team.players.filter { abs(center.x - it.player.location.x) + 2 > abs(center.x - location.x) }
-                    .forEach { it.player.velocity = Vector(dx * 50, 0.05, 0.0) }
+                team.players.filter { abs(center.x - it.player!!.location.x) + 2 > abs(center.x - location.x) }
+                    .forEach { it.player?.velocity = Vector(dx * 50, 0.05, 0.0) }
             }
         }
         return time
@@ -82,8 +81,6 @@ class TugOfWar(private val game: SquidGame) : Day {
 
     override fun registerHandlers(context: EventContext) {
         fork = context
-
-        spawn.yaw = 180f
 
         game.map.getLabels("tug-manager").forEach { Workers.TRIANGLE.spawn(it, "§e§lНАЖМИТЕ") }
         game.map.getLabels("tug-circle").forEach { Workers.CIRCLE.spawn(it, "§eСледуйте к мосту") }
@@ -108,7 +105,7 @@ class TugOfWar(private val game: SquidGame) : Day {
                 val user = app.getUser(entity as Player)
                 val team = getTeamByUser(user)
                 team.players.remove(user)
-                Bonus.JUMP.drop(bonus.minByOrNull { it.distanceSquared(team.spawn) }!!)
+                Bonus.JUMP.drop(bonus.minBy { it.distanceSquared(team.spawn) }!!)
                 AcceptLose.accept(game, user)
             }
         }
@@ -132,6 +129,8 @@ class TugOfWar(private val game: SquidGame) : Day {
                     ModHelper.glow(victim, 255, 0, 0)
                     ModHelper.title(user, "§aСкинуть!\n\n\n")
                     ModHelper.glow(user, 0, 0, 255)
+
+                    user.tugs++
                 }
             }
         }
@@ -164,7 +163,7 @@ class TugOfWar(private val game: SquidGame) : Day {
         if (user.team == null)
             addToTeam(user)
         user.roundWinner = true
-        user.player.inventory.addItem(hook)
+        user.player?.inventory?.addItem(hook)
     }
 
     private fun addToTeam(user: User) {
@@ -176,17 +175,17 @@ class TugOfWar(private val game: SquidGame) : Day {
 
         val team = getWeakTeam()
 
-        user.player.teleport(team.spawn)
-        user.player.setMetadata("tug-team", FixedMetadataValue(app, team.uuid))
+        user.player?.teleport(team.spawn)
+        user.player?.setMetadata("tug-team", FixedMetadataValue(app, team.uuid))
         team.players.add(user)
     }
 
     private fun getWeakTeam(): TugTeam {
-        return teams.values.minByOrNull { it.players.size }!!
+        return teams.values.minBy { it.players.size }!!
     }
 
     private fun getTeamByUser(user: User): TugTeam {
-        return teams[UUID.fromString(user.player.getMetadata("tug-team")[0].asString())]!!
+        return teams[UUID.fromString(user.player!!.getMetadata("tug-team")[0].asString())]!!
     }
 
 }

@@ -2,7 +2,7 @@ package me.func.day.play.night
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
-import me.func.AcceptLose
+import me.func.accept.AcceptLose
 import me.func.SquidGame
 import me.func.app
 import me.func.day.Day
@@ -20,27 +20,23 @@ import org.bukkit.potion.PotionEffectType
 private const val HEALTH_BARRIER = 7f
 
 class Night(private val game: SquidGame) : Day {
+
     override val duration = 1 * 60 + 20
     override lateinit var fork: EventContext
-    override val description = arrayOf(
-        "   §7Уменьшайте количество конкурентов",
-        "   §7или прячьтесь от врагов.",
-        "   §7Взяв нож вы должны убить",
-        "   §7кого-либо, или вы обречены."
-    )
-    override val title = "§cНочная резня"
+    override val description = "Взяв нож вы должны убить\nкого-либо, или вы обречены"
+    override val title = "Ночная резня"
 
     private val blindness = PotionEffect(PotionEffectType.BLINDNESS, 20 * 5, 1)
     private val generators = game.map.getLabels("knife").map { Knife(it) }
 
     override fun join(user: User) {
-        user.player.teleport(game.spawns.random())
+        user.player?.teleport(game.spawns.random())
     }
 
     override fun tick(time: Int): Int {
         if (!game.timer.stop) {
             if (time % (10 * 20) == 0) {
-                game.getVictims().forEach { it.player.addPotionEffect(blindness) }
+                game.getVictims().forEach { it.player?.addPotionEffect(blindness) }
             }
 
             generators.filter { it.owner != null && it.drop == null }.forEach {
@@ -63,7 +59,7 @@ class Night(private val game: SquidGame) : Day {
 
         fork.on<PlayerPickupItemEvent> {
             if (item.itemStack.getType() == Material.IRON_SWORD && !player.inventory.contains(Material.IRON_SWORD)) {
-                generators.minByOrNull { it.generator.distanceSquared(player.location) }!!.get(app.getUser(player))
+                generators.minBy { it.generator.distanceSquared(player.location) }!!.get(app.getUser(player))
             } else {
                 isCancelled = true
             }
@@ -94,10 +90,13 @@ class Night(private val game: SquidGame) : Day {
             }
         }
         fork.on<EntityDamageEvent> {
-            if (!game.timer.stop && entity is Player && (entity as Player).health < HEALTH_BARRIER)
-                AcceptLose.accept(game, app.getUser(entity as Player))
-            else
+            if (!game.timer.stop && entity is Player && (entity as Player).health < HEALTH_BARRIER) {
+                val user = app.getUser(entity as Player)
+                AcceptLose.accept(game, user)
+                user.kills++
+            } else {
                 isCancelled = true
+            }
         }
     }
 
@@ -108,9 +107,9 @@ class Night(private val game: SquidGame) : Day {
 
     override fun startPersonal(user: User) {
         Music.LOBBY.play(user)
-        user.player.health = user.player.maxHealth
+        user.player?.health = user.player!!.maxHealth
         user.roundWinner = true
-        user.player.addPotionEffect(blindness)
-        user.player.teleport(game.spawns.random())
+        user.player?.addPotionEffect(blindness)
+        user.player?.teleport(game.spawns.random())
     }
 }

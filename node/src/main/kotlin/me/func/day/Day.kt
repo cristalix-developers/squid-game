@@ -12,7 +12,7 @@ interface Day {
     fun startPersonal(user: User)
     val duration: Int
     val title: String
-    val description: Array<String>
+    val description: String
     val fork: EventContext
 
 }

@@ -41,7 +41,7 @@ data class Knife(
         drop!!.remove()
         drop = null
         owner = user
-        user.player.addPotionEffect(SPEED)
+        user.player?.addPotionEffect(SPEED)
         timeLeft = DURATION
     }
 }

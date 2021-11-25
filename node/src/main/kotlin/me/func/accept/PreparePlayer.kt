@@ -1,7 +1,8 @@
-package me.func
+package me.func.accept
 
 import dev.implario.bukkit.item.item
 import dev.implario.games5e.sdk.cristalix.ModLoader
+import me.func.SquidGame
 import me.func.day.WaitingGame
 import me.func.mod.ModHelper
 import me.func.user.User
@@ -27,34 +28,28 @@ object PreparePlayer : (User, SquidGame) -> (Unit) {
 
     override fun invoke(user: User, game: SquidGame) {
         game.context.after(1) {
-            ModLoader.manyToOne(user.player)
+            ModLoader.manyToOne(user.player!!)
 
             val player = user.player
             val message: String
-            val group = game.permissions.getBestGroup(player.uniqueId).get()
-            val color = game.permissions.getNameColor(player.uniqueId).get()
 
-            user.stat.lastSeenName = "§7${group?.prefixColor ?: ""}" +
-                    (group?.prefix ?: "") +
-                    (if (group?.prefix?.isEmpty() == true) "" else " ") +
-                    (color ?: "") +
-                    player.name
+            user.stat.lastSeenName = game.cristalix.getPlayer(player?.uniqueId).displayName
 
             if (game.timer.activeDay is WaitingGame) {
-                user.player.gameMode = GameMode.ADVENTURE
+                user.player?.gameMode = GameMode.ADVENTURE
                 user.roundWinner = true
                 user.number = getNumber(game)
-                user.player.displayName = user.stat.lastSeenName + " §f#" + user.number
-                user.player.customName = user.stat.lastSeenName
+                user.player?.displayName = user.stat.lastSeenName + " §f#" + user.number
+                user.player?.customName = user.stat.lastSeenName
 
-                message = "§a${user.player.name} §f#${user.number} §7участвует."
+                message = "§a${user.player?.name} §f#${user.number} §7участвует."
 
-                player.inventory.setItem(8, if (user.stat.music) musicOff else musicOn)
+                player?.inventory?.setItem(8, if (user.stat.music) musicOn else musicOff)
             } else {
-                user.player.gameMode = GameMode.SPECTATOR
+                user.player?.gameMode = GameMode.SPECTATOR
                 user.spectator = true
 
-                message = "§a${user.player.name} §7смотрит игру."
+                message = "§a${user.player?.name} §7смотрит игру."
             }
             game.timer.activeDay.join(user)
 

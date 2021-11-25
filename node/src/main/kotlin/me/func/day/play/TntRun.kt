@@ -2,8 +2,8 @@ package me.func.day.play
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
-import me.func.AcceptLose
 import me.func.SquidGame
+import me.func.accept.AcceptLose
 import me.func.app
 import me.func.day.Day
 import me.func.day.misc.Bonus
@@ -21,11 +21,7 @@ import org.bukkit.potion.PotionEffectType
 class TntRun(private val game: SquidGame) : Day {
 
     override val duration = 1 * 60
-    override val description = arrayOf(
-        "   §7Бегите по блокам,",
-        "   §7но продержитесь до",
-        "   §7завершения."
-    )
+    override val description = "Бегите по блокам, но продержитесь\nдо завершения"
     override val title = "Аккуратность"
     override lateinit var fork: EventContext
 
@@ -33,13 +29,16 @@ class TntRun(private val game: SquidGame) : Day {
     private val slow = PotionEffect(PotionEffectType.SLOW, 2 * 20, 2)
 
     override fun join(user: User) {
-        user.player.teleport(bonus.random())
-        user.player.addPotionEffect(slow)
+        user.player?.teleport(bonus.random())
+        user.player?.addPotionEffect(slow)
     }
 
     override fun tick(time: Int): Int {
         if (time % 5 == 0 && time > 0) {
-            game.getVictims().forEach { downgrade(it.player.location.block.getRelative(BlockFace.DOWN)) }
+            game.getVictims().forEach {
+                it.blockBreak++
+                downgrade(it.player!!.location.block.getRelative(BlockFace.DOWN))
+            }
         }
         if (!game.timer.stop && time % 5 == 0 && time > 0) {
             generateBonus()
@@ -72,10 +71,10 @@ class TntRun(private val game: SquidGame) : Day {
 
         if (!user.spectator) {
             val origin = bonus.random()
-            user.player.teleport(origin)
+            user.player?.teleport(origin)
             if (user.roundWinner) {
                 val size = 6
-                val start = user.player.location
+                val start = user.player!!.location
 
                 repeat(size) { x ->
                     repeat(size) { z ->
@@ -111,8 +110,6 @@ class TntRun(private val game: SquidGame) : Day {
     )
 
     private fun generateBonus() {
-        val place = bonus.filter { it.block.getRelative(BlockFace.DOWN).type != Material.AIR }
-        if (place.isNotEmpty())
-            drop.random().drop(place.random())
+        drop.random().drop(bonus.random())
     }
 }

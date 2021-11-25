@@ -2,15 +2,14 @@ package me.func.day.play.girl
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
-import me.func.AcceptLose
-import me.func.AcceptRoundWin
+import me.func.accept.AcceptLose
+import me.func.accept.AcceptRoundWin
 import me.func.SquidGame
 import me.func.app
 import me.func.day.Day
 import me.func.day.PLAYER_PREPARE_DURATION
 import me.func.day.misc.Bonus
 import me.func.day.misc.Workers
-import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.util.Music
 import org.bukkit.Material
@@ -25,12 +24,8 @@ class GreenLight(private val game: SquidGame) : Day {
 
     override lateinit var fork: EventContext
     override val duration = 1 * 60 + 20
-    override val description = arrayOf(
-        "   §7Стойте когда горит",
-        "   §7красный и поспешите когда",
-        "   §7виден зеленый, пересеките черту."
-    )
-    override val title = "§cКрасный §7свет, §aзеленый §7свет"
+    override val description = "Стойте когда горит красный и\nпоспешите когда виден зеленый!"
+    override val title = "Красный свет"
 
     private val spawn = game.map.getLabels("day1").map {
         val current = it.toCenterLocation().add(0.0, 1.5, 0.0)
@@ -53,7 +48,7 @@ class GreenLight(private val game: SquidGame) : Day {
 
 
     override fun join(user: User) {
-        user.player.teleport(spawn.random())
+        user.player?.teleport(spawn.random())
     }
 
     override fun tick(time: Int): Int {
@@ -117,6 +112,7 @@ class GreenLight(private val game: SquidGame) : Day {
             if (to.z < deathLineZ && !user.spectator) {
                 if (!user.roundWinner) {
                     AcceptRoundWin.accept(game, user)
+                    user.timeOnGreenLight = (game.timer.time / 2.0).toInt() / 10.0
                     player.removePotionEffect(PotionEffectType.SLOW)
                 } else if (to.z > deathLineZ - 2) {
                     player.velocity = Vector(0.0, 0.1, -0.3)
@@ -157,7 +153,7 @@ class GreenLight(private val game: SquidGame) : Day {
     }
 
     override fun startPersonal(user: User) {
-        user.player.addPotionEffects(effects)
+        user.player?.addPotionEffects(effects)
     }
 
     private fun backBullet(gun: Gun) {
