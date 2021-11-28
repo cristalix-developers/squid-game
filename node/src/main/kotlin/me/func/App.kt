@@ -45,7 +45,7 @@ val LOBBY_SERVER: RealmId = RealmId.of("MURP-2")
 
 const val NEED_PLAYERS = 1
 const val MAX_PLAYERS = 200
-const val RESPAWN_COST = 4
+const val RESPAWN_COST = 3
 const val MINIMUM_PLAYERS_RESPAWN = 8
 
 class App : JavaPlugin() {
@@ -104,7 +104,7 @@ class App : JavaPlugin() {
                     }
 
                     game.cristalix.client.writeAndAwaitResponse<MoneyTransactionResponsePackage>(
-                        MoneyTransactionRequestPackage(player.uniqueId, RESPAWN_COST + 5 * user.respawn, true, "Воскрешение на SquidGame")
+                        MoneyTransactionRequestPackage(player.uniqueId, RESPAWN_COST + 2 * user.respawn, true, "Воскрешение на SquidGame")
                     ).thenAccept { responsePackage ->
                         if (responsePackage.errorMessage != null) {
                             player.sendMessage(Formatting.error(responsePackage.errorMessage))

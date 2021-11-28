@@ -6,10 +6,11 @@ import me.func.mod.ModHelper
 import me.func.user.User
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 
-enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolean, val effect: (User) -> Unit) {
+enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolean, val effect: (Player) -> Unit) {
 
     SPEED(item {
         type = Material.CLAY_BALL
@@ -62,10 +63,10 @@ enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolea
         item.setMetadata("trash", FixedMetadataValue(app, 0))
     }
 
-    fun give(user: User): Boolean {
-        if (stackable || !user.player!!.inventory.contains(itemStack)) {
-            effect(user)
-            ModHelper.glow(user, 42, 189, 102)
+    fun give(player: Player): Boolean {
+        if (stackable || !player.inventory.contains(itemStack)) {
+            effect(player)
+            ModHelper.glow(app.getUser(player), 42, 189, 102)
             return true
         }
         return false

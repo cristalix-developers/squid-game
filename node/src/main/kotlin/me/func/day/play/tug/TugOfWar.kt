@@ -101,7 +101,7 @@ class TugOfWar(private val game: SquidGame) : Day {
         }
 
         fork.on<EntityDamageEvent> {
-            if (cause == EntityDamageEvent.DamageCause.FALL) {
+            if (cause == EntityDamageEvent.DamageCause.FALL && damage > 7) {
                 val user = app.getUser(entity as Player)
                 val team = getTeamByUser(user)
                 team.players.remove(user)
@@ -117,8 +117,12 @@ class TugOfWar(private val game: SquidGame) : Day {
 
         fork.on<ProjectileHitEvent> {
             if (entity is FishHook && hitEntity != null && hitEntity is Player) {
-                val user = app.getUser((entity as FishHook).shooter as Player)
+                val player = (entity as FishHook).shooter as Player
+                val user = app.getUser(player)
                 val victim = app.getUser(hitEntity as Player)
+
+                if (!(player.hasMetadata("tug-team") && hitEntity.hasMetadata("tug-team")))
+                    return@on
 
                 val attackerTeam = getTeamByUser(user)
                 val victimTeam = getTeamByUser(victim)
@@ -175,13 +179,13 @@ class TugOfWar(private val game: SquidGame) : Day {
 
         val team = getWeakTeam()
 
-        user.player?.teleport(team.spawn)
-        user.player?.setMetadata("tug-team", FixedMetadataValue(app, team.uuid))
-        team.players.add(user)
+        user.player?.teleport(team?.spawn)
+        user.player?.setMetadata("tug-team", FixedMetadataValue(app, team?.uuid))
+        team?.players?.add(user)
     }
 
-    private fun getWeakTeam(): TugTeam {
-        return teams.values.minBy { it.players.size }!!
+    private fun getWeakTeam(): TugTeam? {
+        return teams.values.minBy { it.players.size }
     }
 
     private fun getTeamByUser(user: User): TugTeam {

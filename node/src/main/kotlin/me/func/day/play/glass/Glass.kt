@@ -1,13 +1,17 @@
 package me.func.day.play.glass
 
+import me.func.SquidGame
 import org.bukkit.Location
 import org.bukkit.Material
+import ru.cristalix.core.formatting.Formatting
 
 data class Glass(val location: Location, val strong: Boolean, var standing: Boolean = true) {
 
-    fun kill() {
+    fun kill(game: SquidGame) {
         if (!standing)
             return
+        if (strong)
+            game.broadcast(Formatting.error("Игроки сломали стекло!"))
         standing = false
         fill(Material.AIR)
     }

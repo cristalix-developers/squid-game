@@ -24,7 +24,6 @@ class WaitingGame(private val game: SquidGame) : Day {
     override fun join(user: User) {
         user.spectator = false
         user.player?.teleport(game.spawns.random())
-        user.player?.sendMessage(Formatting.error("Игра еще не открыта! Происходит настройка связи серверов!"))
 
         fork.after(1) {
             ModHelper.timer(user, "Ожидание игроков", duration - game.timer.time / 20 - 1)

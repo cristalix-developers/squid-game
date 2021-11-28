@@ -72,7 +72,7 @@ class TntRun(private val game: SquidGame) : Day {
         if (!user.spectator) {
             val origin = bonus.random()
             user.player?.teleport(origin)
-            if (user.roundWinner) {
+            if (user.roundWinner && user.player != null) {
                 val size = 6
                 val start = user.player!!.location
 

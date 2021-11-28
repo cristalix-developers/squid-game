@@ -2,9 +2,9 @@ package me.func.day.play
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
+import me.func.SquidGame
 import me.func.accept.AcceptLose
 import me.func.accept.AcceptRoundWin
-import me.func.SquidGame
 import me.func.day.Day
 import me.func.mod.ModHelper
 import me.func.mod.ModTransfer
@@ -23,6 +23,12 @@ class DeathRun(private val game: SquidGame) : Day {
     private val spawn = game.map.getLabel("day4")
     private val barrierMin = game.map.getLabel("barrier-min")
     private val barrierMax = game.map.getLabel("barrier-max")
+
+    private val checkPoints = game.map.getLabels("safe").map {
+        it.yaw = it.tagFloat
+        it
+    }
+
     private val deltaY = 95
     private val okayLevel = 1.4
     private val handicap = 4
@@ -72,21 +78,26 @@ class DeathRun(private val game: SquidGame) : Day {
             copy.set(barrierMin.x + it, barrierMin.y + 1, barrierMin.z)
             copy.block.setTypeAndDataFast(0, 0)
         }
-        game.getUsers().forEach {
-            startPersonal(it)
-            it.roundWinner = false
-        }
+        game.getUsers().forEach { startPersonal(it) }
     }
 
     override fun startPersonal(user: User) {
         Music.FUN.play(user)
+        user.roundWinner = false
         game.after(handicap * 20L) {
             ModTransfer()
-                .integer(duration - handicap / 3)
+                .integer((duration - handicap / 1.5).toInt())
                 .integer(deltaY)
                 .send("func:water-move", user)
         }
-        user.roundWinner = true
+
+        if (game.timer.time / 20 > handicap) {
+            val highestUserY = game.getVictims().map { it.player!!.location.y }.maxBy { it }
+            val nearestSafePoint = if (highestUserY == null) checkPoints.maxBy { it.y }!!
+            else checkPoints.filter { it.y > highestUserY }.minBy { it.y }!!
+
+            user.player!!.teleport(nearestSafePoint)
+        }
     }
 
     private fun underWater(user: User): Boolean {

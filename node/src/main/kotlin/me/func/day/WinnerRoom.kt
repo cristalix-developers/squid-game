@@ -14,7 +14,6 @@ import org.bukkit.event.entity.EntityDamageEvent
 import ru.cristalix.npcs.data.NpcBehaviour
 import ru.cristalix.npcs.server.Npc
 import ru.cristalix.npcs.server.Npcs
-import kotlin.math.atan
 
 class WinnerRoom(private val game: SquidGame) : Day {
 

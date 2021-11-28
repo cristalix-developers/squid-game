@@ -40,7 +40,7 @@ data class SquidGameSettings(
 class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
     var timer = Timer(this)
     val cristalix: Cristalix = Cristalix.connectToCristalix(this, "SQD", "Игра в Кальмара")
-    val map = WorldMeta(MapLoader().load("SquidGame", "prod"))
+    val map: WorldMeta = MapLoader.load(this, "SquidGame", "prod")
     val best = mutableMapOf<BestUser, User>()
 
     override fun acceptPlayer(event: AsyncPlayerPreLoginEvent): Boolean {
@@ -59,7 +59,6 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
     fun getVictims() = getUsers().filter { !it.spectator }
 
     init {
-        context.appendOption(WorldEventFilter(map.world))
         cristalix.setRealmInfoBuilder { it.lobbyFallback(LOBBY_SERVER) }
         cristalix.updateRealmInfo()
 
@@ -130,7 +129,7 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
         context.on<PlayerPickupItemEvent> {
             val nmsItem = CraftItemStack.asNMSCopy(item.itemStack)
             if (nmsItem.hasTag() && nmsItem.tag.hasKeyOfType("bonus", 8)) {
-                if (!Bonus.valueOf(nmsItem.tag.getString("bonus").toUpperCase()).give(app.getUser(player)))
+                if (!Bonus.valueOf(nmsItem.tag.getString("bonus").toUpperCase()).give(player))
                     isCancelled = true
             }
         }

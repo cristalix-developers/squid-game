@@ -19,7 +19,7 @@ object AcceptLose : BiConsumer<SquidGame, User> {
             return
 
         if (game.getVictims().size >= MINIMUM_PLAYERS_RESPAWN)
-            ModTransfer().integer(RESPAWN_COST + 5 * user.respawn).send("func:try-respawn", user)
+            ModTransfer().integer(RESPAWN_COST + 2 * user.respawn).send("func:try-respawn", user)
 
         user.roundWinner = false
         user.spectator = true

@@ -45,7 +45,7 @@ class ModTransfer {
         return this
     }
 
-    fun send(channel: String?, user: User) {
-        user.sendPacket(PacketPlayOutCustomPayload(channel, serializer))
+    fun send(channel: String?, user: User?) {
+        user?.sendPacket(PacketPlayOutCustomPayload(channel, serializer))
     }
 }

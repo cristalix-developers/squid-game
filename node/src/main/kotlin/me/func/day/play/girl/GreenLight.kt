@@ -38,6 +38,7 @@ class GreenLight(private val game: SquidGame) : Day {
     private val effects = listOf(
         PotionEffect(PotionEffectType.SLOW, duration * 20 * 2, 2),
         PotionEffect(PotionEffectType.JUMP, duration * 20 * 2, 255),
+        PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 3, 1),
     )
 
     private val deathLineZ = girl.location.z + 3
@@ -130,9 +131,10 @@ class GreenLight(private val game: SquidGame) : Day {
                 cancel = true
             }
 
-            if (!canKill || user.spectator || !girl.canView() || user.roundWinner)
+            if (!canKill || user.spectator || !girl.canView() || user.roundWinner || player.hasPotionEffect(
+                    PotionEffectType.NIGHT_VISION))
                 return@on
-            if (from.blockX != to.blockX || from.blockY != to.blockY || from.blockZ != to.blockZ) {
+            if (from.blockX != to.blockX || from.blockZ != to.blockZ) {
                 val random = turrets.values.random()
                 game.getUsers().forEach { Music.SHOOT.play(it) }
                 random.shoot(to)
@@ -154,6 +156,7 @@ class GreenLight(private val game: SquidGame) : Day {
 
     override fun startPersonal(user: User) {
         user.player?.addPotionEffects(effects)
+        user.roundWinner = false
     }
 
     private fun backBullet(gun: Gun) {
