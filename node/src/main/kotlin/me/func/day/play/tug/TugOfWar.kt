@@ -121,7 +121,7 @@ class TugOfWar(private val game: SquidGame) : Day {
                 val user = app.getUser(player)
                 val victim = app.getUser(hitEntity as Player)
 
-                if (!(player.hasMetadata("tug-team") && hitEntity.hasMetadata("tug-team")))
+                if (!player.hasMetadata("tug-team") || !hitEntity.hasMetadata("tug-team"))
                     return@on
 
                 val attackerTeam = getTeamByUser(user)
@@ -164,18 +164,15 @@ class TugOfWar(private val game: SquidGame) : Day {
 
     override fun startPersonal(user: User) {
         Music.FUN.play(user)
-        if (user.team == null)
-            addToTeam(user)
+        addToTeam(user)
         user.roundWinner = true
-        user.player?.inventory?.addItem(hook)
     }
 
     private fun addToTeam(user: User) {
-        if (user.spectator)
+        if (user.spectator || teams.values.firstOrNull { it.players.contains(user) } != null || user.player == null)
             return
 
-        if (teams.values.firstOrNull { it.players.contains(user) } != null)
-            return
+        user.player?.inventory?.addItem(hook)
 
         val team = getWeakTeam()
 
