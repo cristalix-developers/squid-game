@@ -14,6 +14,7 @@ import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import dev.implario.games5e.node.GameCreator
 import dev.implario.games5e.node.GameNode
 import dev.implario.games5e.node.linker.SessionBukkitLinker
+import me.func.battlepass.quest.ArcadeType
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.user.UserData
@@ -84,6 +85,9 @@ class App : JavaPlugin() {
         kensuke.addGlobalUserManager(userManager)
         kensuke.globalRealm = "SQD-TEST-3"
         userManager.isOptional = true
+
+        // Arcade
+        Arcade.start("SQD-${Math.random() * 1000}", ArcadeType.SQD)
 
         // Mods
         ModLoader.loadAll("/mods")
