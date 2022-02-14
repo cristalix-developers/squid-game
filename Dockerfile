@@ -19,4 +19,4 @@ WORKDIR /app
 RUN mkdir -p /app/data
 VOLUME /app/data
 COPY --from=build /home/squid-game/node/build/libs/squid-game.jar ./squid-game.jar
-ENTRYPOINT exec java $JAVA_OPTS -jar squid-game.jar
+ENTRYPOINT exec java -jar squid-game.jar
