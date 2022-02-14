@@ -12,8 +12,6 @@ on:
 env:
   REGISTRY: docker.io
   IMAGE_NAME: ${{ github.repository }}
-  IMPLARIO_REPO_USER: ${{ secrets.IMPLARIO_REPO_USER }} 
-  IMPLARIO_REPO_PASSWORD: ${{ secrets.IMPLARIO_REPO_PASSWORD }}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -58,4 +56,4 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         env:
           COSIGN_EXPERIMENTAL: "true"
-        run: cosign sign funcid/squid-game@${{ steps.build-and-push.outputs.digest }}
+        run: cosign sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}
