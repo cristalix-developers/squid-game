@@ -5,8 +5,11 @@ WORKDIR /home/squid-game
 RUN export GRADLE_OPTS="-Djdk.lang.Process.launchMechanism=vfork" && chmod +x gradlew && ./gradlew :node:build --no-daemon --stacktrace
 
 # Переменные среды
-ENV IMPLARIO_REPO_USER=$secrets.IMPLARIO_REPO_USER
-ENV IMPLARIO_REPO_PASSWORD=$secrets.IMPLARIO_REPO_PASSWORD
+ARG IMPLARIO_REPO_USER
+ARG IMPLARIO_REPO_PASSWORD
+
+ENV IMPLARIO_REPO_USER=$IMPLARIO_REPO_USER
+ENV IMPLARIO_REPO_PASSWORD=$IMPLARIO_REPO_PASSWORD
 
 # Этап запуска
 FROM openjdk:8-slim
