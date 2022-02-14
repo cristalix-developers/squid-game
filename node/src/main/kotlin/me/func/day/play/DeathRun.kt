@@ -92,11 +92,11 @@ class DeathRun(private val game: SquidGame) : Day {
         }
 
         if (game.timer.time / 20 > handicap) {
-            val highestUserY = game.getVictims().map { it.player!!.location.y }.maxBy { it }
-            val nearestSafePoint = if (highestUserY == null) checkPoints.maxBy { it.y }!!
-            else checkPoints.filter { it.y > highestUserY }.minBy { it.y }!!
+            val highestUserY = game.getVictims().map { it.player!!.location.y }.maxByOrNull { it }
+            val nearestSafePoint = if (highestUserY == null) checkPoints.maxByOrNull { it.y }!!
+            else checkPoints.filter { it.y > highestUserY }.minByOrNull { it.y }!!
 
-            user.player!!.teleport(nearestSafePoint)
+            user.player?.teleport(nearestSafePoint)
         }
     }
 

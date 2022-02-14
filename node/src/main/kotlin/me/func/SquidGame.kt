@@ -60,7 +60,7 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
     fun getVictims() = getUsers().filter { !it.spectator }
 
     init {
-        cristalix.setRealmInfoBuilder { it.lobbyFallback(LOBBY_SERVER) }
+        cristalix.setRealmInfoBuilder { it.lobbyFallback(Arcade.getLobbyRealm()) }
         cristalix.updateRealmInfo()
 
         // may delete

@@ -1,12 +1,11 @@
 package me.func.accept
 
 import dev.implario.bukkit.item.item
-import dev.implario.games5e.sdk.cristalix.ModLoader
 import me.func.SquidGame
 import me.func.app
 import me.func.day.WaitingGame
 import me.func.mod.ModHelper
-import me.func.user.User
+import me.func.mod.conversation.ModLoader
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
