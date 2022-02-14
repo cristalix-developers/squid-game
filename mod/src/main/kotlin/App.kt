@@ -1,9 +1,6 @@
 import dev.xdark.clientapi.event.render.*
-import dev.xdark.feder.NetUtil
 import ru.cristalix.clientapi.KotlinMod
-import ru.cristalix.clientapi.readDate
 import ru.cristalix.uiengine.UIEngine
-import sun.plugin2.message.PluginMessage
 import kotlin.math.abs
 
 const val NAMESPACE = "squidgame"

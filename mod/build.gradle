@@ -19,8 +19,8 @@ repositories {
     mavenCentral()
 }
 
+apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'ru.cristalix.uiengine.bundler'
-apply plugin: 'kotlin'
 
 bundler {
     name 'SquidGame'
