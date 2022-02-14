@@ -33,5 +33,6 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
       env:
+        MAVEN_CREDENTIALS: ${{ secrets.MAVEN_CREDENTIALS }}
         IMPLARIO_REPO_USER: ${{ secrets.IMPLARIO_REPO_USER }}
         IMPLARIO_REPO_PASSWORD: ${{ secrets.IMPLARIO_REPO_PASSWORD }}
