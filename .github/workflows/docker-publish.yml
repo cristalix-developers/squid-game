@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: registry-1.docker.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: funcid/squid-game
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -56,4 +56,4 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         env:
           COSIGN_EXPERIMENTAL: "true"
-        run: cosign sign funcid/squid-game/@${{ steps.build-and-push.outputs.digest }}
+        run: cosign sign ${{ env.IMAGE_NAME }}/@${{ steps.build-and-push.outputs.digest }}
