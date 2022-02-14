@@ -12,8 +12,8 @@ subprojects {
         maven {
             url 'https://repo.implario.dev/cristalix/'
             credentials {
-                username System.getenv("IMPLARIO_REPO_USER") ?: project.properties.get("IMPLARIO_REPO_USER").toString()
-                password System.getenv("IMPLARIO_REPO_PASSWORD") ?: project.properties.get("IMPLARIO_REPO_PASSWORD").toString()
+                username System.getenv("IMPLARIO_REPO_USER")
+                password System.getenv("IMPLARIO_REPO_PASSWORD")
             }
         }
     }
