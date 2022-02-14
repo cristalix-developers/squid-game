@@ -2,9 +2,12 @@ package me.func.day.play.night
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
+import me.func.Arcade
 import me.func.accept.AcceptLose
 import me.func.SquidGame
 import me.func.app
+import me.func.battlepass.BattlePassUtil
+import me.func.battlepass.quest.QuestType
 import me.func.day.Day
 import me.func.mod.ModHelper
 import me.func.user.User
@@ -94,6 +97,8 @@ class Night(private val game: SquidGame) : Day {
                 val user = app.getUser(entity as Player)
                 AcceptLose.accept(game, user)
                 user.kills++
+                Arcade.deposit(user.player?.uniqueId!!, 2)
+                BattlePassUtil.update(user.player!!, QuestType.KILL, 1, false)
             } else {
                 isCancelled = true
             }

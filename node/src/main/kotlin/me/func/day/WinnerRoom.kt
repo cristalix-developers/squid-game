@@ -2,7 +2,10 @@ package me.func.day
 
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
+import me.func.Arcade
 import me.func.SquidGame
+import me.func.battlepass.BattlePassUtil
+import me.func.battlepass.quest.QuestType
 import me.func.mod.ModHelper
 import me.func.mod.ModTransfer
 import me.func.top.BestUser
@@ -48,9 +51,15 @@ class WinnerRoom(private val game: SquidGame) : Day {
 
             BestUser.values().forEach { best -> game.tryUpdateBest(best, it) }
 
+            BattlePassUtil.update(it.player!!, QuestType.PLAY, 1, false)
+            BattlePassUtil.update(it.player!!, QuestType.TIME, (4 + Math.random() * 1000).toInt(), false)
+
             if (!it.spectator) {
                 ModTransfer().integer(it.number).send("func:win", it)
                 it.stat.wins++
+                Arcade.deposit(it.player?.uniqueId!!, 5)
+                Arcade.distributeLootbox(it.player!!)
+                BattlePassUtil.update(it.player!!, QuestType.WIN, 1, false)
             }
         }
 

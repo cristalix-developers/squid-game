@@ -4,13 +4,17 @@ import com.destroystokyo.paper.event.player.PlayerUseUnknownEntityEvent
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.item.item
+import me.func.Arcade
 import me.func.accept.AcceptLose
 import me.func.SquidGame
 import me.func.app
+import me.func.battlepass.BattlePassUtil
+import me.func.battlepass.quest.QuestType
 import me.func.day.Day
 import me.func.day.misc.Bonus
 import me.func.day.misc.Workers
 import me.func.mod.ModHelper
+import me.func.mod.battlepass.BattlePass
 import me.func.user.User
 import me.func.util.Music
 import net.minecraft.server.v1_12_R1.EnumMoveType
@@ -136,6 +140,9 @@ class TugOfWar(private val game: SquidGame) : Day {
                     ModHelper.glow(user, 0, 0, 255)
 
                     user.tugs++
+                    Arcade.deposit(user.player?.uniqueId!!, 2)
+                    BattlePassUtil.update(user.player!!, QuestType.KILL, 1, false)
+
                 }
             }
         }
