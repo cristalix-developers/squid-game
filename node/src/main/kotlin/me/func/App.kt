@@ -1,19 +1,16 @@
 package me.func
 
 import com.google.gson.Gson
-import com.google.gson.JsonElement
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.games5e.node.CoordinatorClient
 import dev.implario.games5e.node.DefaultGameNode
-import dev.implario.games5e.sdk.cristalix.ModLoader
+import dev.implario.games5e.node.GameCreator
+import dev.implario.games5e.node.linker.SessionBukkitLinker
 import dev.implario.kensuke.Kensuke
 import dev.implario.kensuke.Scope
 import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
-import dev.implario.games5e.node.GameCreator
-import dev.implario.games5e.node.GameNode
-import dev.implario.games5e.node.linker.SessionBukkitLinker
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.user.UserData
@@ -30,13 +27,9 @@ import ru.cristalix.core.display.IDisplayService
 import ru.cristalix.core.formatting.Formatting
 import ru.cristalix.core.internal.BukkitInternals
 import ru.cristalix.core.internal.FastBukkitInternals
-import ru.cristalix.core.network.ISocketClient
 import ru.cristalix.core.network.packages.MoneyTransactionRequestPackage
 import ru.cristalix.core.network.packages.MoneyTransactionResponsePackage
-import ru.cristalix.core.permissions.IPermissionService
-import ru.cristalix.core.permissions.PermissionService
 import ru.cristalix.core.realm.RealmId
-import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.npcs.server.Npcs
 import java.util.*
 
@@ -68,16 +61,17 @@ class App : JavaPlugin() {
         Platforms.set(PlatformDarkPaper())
         Npcs.init(this)
 
+        val gson = Gson()
+
         // Games5e
         val node = DefaultGameNode()
         node.supportedImagePrefixes.add("squid-game")
         node.linker = SessionBukkitLinker.link(node)
-        val gson = Gson()
         node.gameCreator = GameCreator { gameId, _, settings ->
              SquidGame(gameId, gson.fromJson(settings, SquidGameSettings::class.java))
         }
-
         val coordinatorClient = CoordinatorClient(node)
+        coordinatorClient.enable()
 
         // Kensuke moment
         kensuke = BukkitKensuke.setup(app)
@@ -86,9 +80,7 @@ class App : JavaPlugin() {
         userManager.isOptional = true
 
         // Mods
-        ModLoader.loadAll("/mods")
-
-        coordinatorClient.enable()
+        Anime.loadAll("/mods")
 
         // Respawn
         Bukkit.getMessenger().registerIncomingPluginChannel(app, "func:respawn") { _, player, _ ->

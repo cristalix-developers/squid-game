@@ -30,6 +30,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
+import ru.cristalix.core.display.BukkitDisplayService
 import ru.cristalix.core.transfer.TransferService
 import java.util.*
 
@@ -95,7 +96,7 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
             val user = app.getUser(player)
             if (user.player == null)
                 user.player = player
-            PreparePlayer(app.getUser(player), this@SquidGame)
+            PreparePlayer(player, this@SquidGame)
         }
         context.on<AsyncPlayerChatEvent> { format = "%1\$s → §7%2\$s" }
         context.on<BlockRedstoneEvent> { newCurrent = oldCurrent }

@@ -47,7 +47,6 @@ class GreenLight(private val game: SquidGame) : Day {
     private var canKill = false
     private var walls = true
 
-
     override fun join(user: User) {
         user.player?.teleport(spawn.random())
     }
@@ -135,12 +134,14 @@ class GreenLight(private val game: SquidGame) : Day {
                     PotionEffectType.NIGHT_VISION))
                 return@on
             if (from.blockX != to.blockX || from.blockZ != to.blockZ) {
-                val random = turrets.values.random()
-                game.getUsers().forEach { Music.SHOOT.play(it) }
-                random.shoot(to)
-                backBullet(random)
+                if (girl.forwardView) {
+                    val random = turrets.values.random()
+                    game.getUsers().forEach { Music.SHOOT.play(it) }
+                    random.shoot(to)
+                    backBullet(random)
 
-                AcceptLose.accept(game, user)
+                    AcceptLose.accept(game, user)
+                }
             }
         }
     }

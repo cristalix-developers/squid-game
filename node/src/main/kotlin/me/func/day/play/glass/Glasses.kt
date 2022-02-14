@@ -79,7 +79,7 @@ class Glasses(private val game: SquidGame) : Day {
 
             val currentGlass = glasses.find { it.inside(player.location) }
             if (currentGlass != null) {
-                if (!currentGlass.strong) {
+                if (!currentGlass.strong && currentGlass.standing) {
                     currentGlass.kill(game)
                     player.velocity = nullVector
                 } else if (game.getVictims().filter { currentGlass.inside(it.player!!.location) }.size >= GLASS_DURABILITY) {

@@ -25,6 +25,7 @@ import org.bukkit.event.player.PlayerFishEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.metadata.FixedMetadataValue
+import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import ru.cristalix.core.util.UtilEntity
 import java.util.*
@@ -127,7 +128,7 @@ class TugOfWar(private val game: SquidGame) : Day {
                 val attackerTeam = getTeamByUser(user)
                 val victimTeam = getTeamByUser(victim)
 
-                if (attackerTeam == victimTeam) {
+                if (attackerTeam == victimTeam || game.timer.stop) {
                     entity.remove()
                 } else {
                     ModHelper.glow(victim, 255, 0, 0)
@@ -165,6 +166,7 @@ class TugOfWar(private val game: SquidGame) : Day {
     override fun startPersonal(user: User) {
         Music.FUN.play(user)
         addToTeam(user)
+        user.player!!.removePotionEffect(PotionEffectType.SLOW)
         user.roundWinner = true
     }
 
