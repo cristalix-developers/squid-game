@@ -33,7 +33,7 @@ dependencies {
 
     implementation 'ru.cristalix:boards-bukkit-api:3.0.15'
     implementation 'ru.cristalix:npcs-bukkit-api:3.0.5'
-    implementation 'me.func:arcade-api:1.1.05'
+    implementation 'me.func:arcade-api:live-SNAPSHOT'
 }
 
 afterEvaluate {
