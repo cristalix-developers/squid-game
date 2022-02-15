@@ -10,7 +10,7 @@ on:
     branches: [ main ]
 
 env:
-  REGISTRY: registry-1.docker.io
+  REGISTRY: registry.implario.net
   IMAGE_NAME: funcid/squid-game
 jobs:
   build:
