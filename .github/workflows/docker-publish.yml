@@ -10,7 +10,7 @@ on:
     branches: [ main ]
 
 env:
-  REGISTRY: registry.implario.net
+  REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
   IMAGE_NAME: funcid/squid-game
 jobs:
   build:
