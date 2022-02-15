@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-  IMAGE_NAME: funcid/squid-game
+  IMAGE_NAME: ${{ repository }}
 jobs:
   build:
     runs-on: ubuntu-latest
