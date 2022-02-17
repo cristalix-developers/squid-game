@@ -14,9 +14,6 @@ ENV IMPLARIO_REPO_PASSWORD=$IMPLARIO_REPO_PASSWORD
 RUN export GRADLE_OPTS="-Djdk.lang.Process.launchMechanism=vfork" && chmod +x gradlew && ./gradlew :node:build --no-daemon --stacktrace
 
 # Этап запуска
-FROM openjdk:8-slim
+FROM registry.implario.net/cristalix-arcades/dark-paper:stable-itemmeta
 WORKDIR /app
-RUN mkdir -p /app/data
-VOLUME /app/data
-COPY --from=build /home/squid-game/node/build/libs/squid-game.jar ./squid-game.jar
-ENTRYPOINT exec java -jar squid-game.jar
+COPY --from=build /home/squid-game/node/build/libs/squid-game.jar ./plugins/squid-game.jar
