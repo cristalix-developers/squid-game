@@ -93,6 +93,7 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
         }
 
         context.on<PlayerJoinEvent> {
+            player.setResourcePack("", "")
             val user = app.getUser(player)
             if (user.player == null)
                 user.player = player
