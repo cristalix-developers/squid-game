@@ -43,6 +43,7 @@ jobs:
         name: squid-game-mod
         path: mod/build/libs/mod-bundle.jar
   deploy:
+    needs: [build]
     runs-on: ubuntu-latest
     permissions:
       contents: read
