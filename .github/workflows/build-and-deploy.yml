@@ -12,6 +12,37 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 jobs:
   build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    - name: Build with Gradle
+      run: chmod +x gradlew && ./gradlew build
+      env:
+        IMPLARIO_REPO_USER: ${{ secrets.IMPLARIO_REPO_USER }}
+        IMPLARIO_REPO_PASSWORD: ${{ secrets.IMPLARIO_REPO_PASSWORD }}
+    - uses: actions/upload-artifact@v2
+      with:
+        name: squid-game-plugin
+        path: node/build/libs/squid-game.jar
+    - uses: actions/upload-artifact@v2
+      with:
+        name: squid-game-mod
+        path: mod/build/libs/mod-bundle.jar
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -20,6 +51,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: squid-game-plugin
+      - uses: actions/download-artifact@v2
+        with:
+          name: squid-game-mod
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
       - name: Log into registry ${{ env.REGISTRY }}
