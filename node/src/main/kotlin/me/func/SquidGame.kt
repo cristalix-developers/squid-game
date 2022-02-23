@@ -1,7 +1,6 @@
 package me.func
 
 import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent
-import dev.implario.bukkit.event.WorldEventFilter
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.world.Label
 import dev.implario.games5e.node.Game
@@ -30,7 +29,6 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
-import ru.cristalix.core.display.BukkitDisplayService
 import ru.cristalix.core.transfer.TransferService
 import java.util.*
 
@@ -52,6 +50,7 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
 
     val spawns: MutableList<Label> = map.getLabels("spawn")
     val spawn: Label = map.getLabel("start")
+    val transferService = TransferService(cristalix.client)
 
     override fun getSpawnLocation(playerId: UUID): Location = spawn
 
@@ -135,8 +134,7 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
             }
         }
 
-        val flatten = settings.teams.flatten()
-        TransferService(cristalix.client).transferBatch(flatten, cristalix.realmId)
+        transferService.transferBatch(settings.teams.flatten(), cristalix.realmId)
     }
 
     fun tryUpdateBest(scoreType: BestUser, user: User) {
@@ -149,9 +147,12 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
     }
 
     fun close() {
-        getUsers().forEach { it.player?.kickPlayer("Игра завершена!") }
+        transferService.transferBatch(players.map { it.uniqueId }, Arcade.getLobbyRealm())
 
-        Bukkit.unloadWorld(map.world, false)
-        unregisterAll()
+        after(10) {
+            isTerminated = true
+            Bukkit.unloadWorld(map.world, false)
+            unregisterAll()
+        }
     }
 }
