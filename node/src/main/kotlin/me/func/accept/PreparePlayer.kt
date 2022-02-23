@@ -29,6 +29,7 @@ object PreparePlayer : (Player, SquidGame) -> (Unit) {
 
     override fun invoke(player: Player, game: SquidGame) {
         game.context.after(1) {
+            player.setResourcePack("", "")
             ModLoader.manyToOne(player)
 
             val user = app.getUser(player)

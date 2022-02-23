@@ -52,7 +52,7 @@ class WinnerRoom(private val game: SquidGame) : Day {
             BestUser.values().forEach { best -> game.tryUpdateBest(best, it) }
 
             BattlePassUtil.update(it.player!!, QuestType.PLAY, 1, false)
-            BattlePassUtil.update(it.player!!, QuestType.TIME, (4 + Math.random() * 1000).toInt(), false)
+            BattlePassUtil.update(it.player!!, QuestType.TIME, 10, false)
 
             if (!it.spectator) {
                 ModTransfer().integer(it.number).send("func:win", it)
