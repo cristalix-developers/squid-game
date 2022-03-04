@@ -13,6 +13,7 @@ import me.func.day.misc.Workers
 import me.func.user.User
 import me.func.util.Music
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerMoveEvent
@@ -47,9 +48,7 @@ class GreenLight(private val game: SquidGame) : Day {
     private var canKill = false
     private var walls = true
 
-    override fun join(user: User) {
-        user.player?.teleport(spawn.random())
-    }
+    override fun join(player: Player) { player.teleport(spawn.random()) }
 
     override fun tick(time: Int): Int {
         if (time % 20 == 1) {
@@ -111,7 +110,7 @@ class GreenLight(private val game: SquidGame) : Day {
 
             if (to.z < deathLineZ && !user.spectator) {
                 if (!user.roundWinner) {
-                    AcceptRoundWin.accept(game, user)
+                    AcceptRoundWin.accept(game, player)
                     user.timeOnGreenLight = (game.timer.time / 2.0).toInt() / 10.0
                     player.removePotionEffect(PotionEffectType.SLOW)
                 } else if (to.z > deathLineZ - 2) {
@@ -140,7 +139,7 @@ class GreenLight(private val game: SquidGame) : Day {
                     random.shoot(to)
                     backBullet(random)
 
-                    AcceptLose.accept(game, user)
+                    AcceptLose.accept(game, player)
                 }
             }
         }
@@ -151,13 +150,13 @@ class GreenLight(private val game: SquidGame) : Day {
         walls = false
         game.getUsers().forEach {
             Music.KILL_FAST.play(it)
-            startPersonal(it)
+            startPersonal(it.player!!)
         }
     }
 
-    override fun startPersonal(user: User) {
-        user.player?.addPotionEffects(effects)
-        user.roundWinner = false
+    override fun startPersonal(player: Player) {
+        player.addPotionEffects(effects)
+        app.getUser(player)?.let { it.roundWinner = false }
     }
 
     private fun backBullet(gun: Gun) {

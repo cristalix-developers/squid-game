@@ -28,9 +28,9 @@ class TntRun(private val game: SquidGame) : Day {
     private val bonus = game.map.getLabels("tnt-bonus").map { it.clone().add(0.0, 2.0, 0.0) }
     private val slow = PotionEffect(PotionEffectType.SLOW, 2 * 20, 2)
 
-    override fun join(user: User) {
-        user.player?.teleport(bonus.random())
-        user.player?.addPotionEffect(slow)
+    override fun join(player: Player) {
+        player.teleport(bonus.random())
+        player.addPotionEffect(slow)
     }
 
     override fun tick(time: Int): Int {
@@ -51,7 +51,7 @@ class TntRun(private val game: SquidGame) : Day {
 
         fork.on<EntityDamageEvent> {
             if (cause == EntityDamageEvent.DamageCause.FALL && damage > 3)
-                AcceptLose.accept(game, app.getUser(entity as Player))
+                AcceptLose.accept(game, entity as Player)
             isCancelled = true
         }
 
@@ -62,30 +62,30 @@ class TntRun(private val game: SquidGame) : Day {
         }
     }
 
-    override fun start() {
-        game.getUsers().forEach { startPersonal(it) }
-    }
+    override fun start() = game.getUsers().mapNotNull { it.player }.forEach { startPersonal(it) }
 
-    override fun startPersonal(user: User) {
-        Music.FUN.play(user)
+    override fun startPersonal(player: Player) {
+        app.getUser(player)?.let { user ->
+            Music.FUN.play(user)
 
-        if (!user.spectator) {
-            val origin = bonus.random()
-            user.player?.teleport(origin)
-            if (user.roundWinner && user.player != null) {
-                val size = 6
-                val start = user.player!!.location
+            if (!user.spectator) {
+                val origin = bonus.random()
+                player.teleport(origin)
+                if (user.roundWinner) {
+                    val size = 6
+                    val start = player.location
 
-                repeat(size) { x ->
-                    repeat(size) { z ->
-                        start.set(origin.x - size / 2 + x, origin.y - 3, origin.z - size / 2 + z)
-                        start.block.type = Material.STAINED_CLAY
+                    repeat(size) { x ->
+                        repeat(size) { z ->
+                            start.set(origin.x - size / 2 + x, origin.y - 3, origin.z - size / 2 + z)
+                            start.block.type = Material.STAINED_CLAY
+                        }
                     }
                 }
             }
-        }
 
-        user.roundWinner = true
+            user.roundWinner = true
+        }
     }
 
     private fun downgrade(block: Block) {

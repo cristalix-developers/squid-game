@@ -11,13 +11,8 @@ class App : KotlinMod() {
     override fun onEnable() {
         UIEngine.initialize(this)
 
-        Title
-        TimeBar
-        MarkerManager
-        CorpseManager
         PlayerLeftManager
         BannerManager
-        KillBoardManager
         Winner
         Alert
 
@@ -34,9 +29,5 @@ class App : KotlinMod() {
         registerHandler<PlayerListRender> { isCancelled = true }
         registerHandler<ArmorRender> { isCancelled = true }
         registerHandler<VehicleHealthRender> { isCancelled = true }
-
-        registerChannel("func:glow") {
-            GlowEffect.show(0.45, readInt(), readInt(), readInt(), 0.9)
-        }
     }
 }

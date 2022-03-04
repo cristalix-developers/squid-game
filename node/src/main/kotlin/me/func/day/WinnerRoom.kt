@@ -6,13 +6,15 @@ import me.func.Arcade
 import me.func.SquidGame
 import me.func.battlepass.BattlePassUtil
 import me.func.battlepass.quest.QuestType
+import me.func.mod.Anime
 import me.func.mod.ModHelper
-import me.func.mod.ModTransfer
+import me.func.mod.conversation.ModTransfer
 import me.func.top.BestUser
 import me.func.user.User
 import me.func.util.Music
 import org.bukkit.GameMode
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import ru.cristalix.npcs.data.NpcBehaviour
 import ru.cristalix.npcs.server.Npc
@@ -30,10 +32,10 @@ class WinnerRoom(private val game: SquidGame) : Day {
         it.clone().add(0.5, 0.0, 0.5)
     }
 
-    override fun join(user: User) {
-        user.player?.teleport(spawn)
-        user.player?.gameMode = GameMode.ADVENTURE
-        user.player?.inventory?.clear()
+    override fun join(player: Player) {
+        player.teleport(spawn)
+        player.gameMode = GameMode.ADVENTURE
+        player.inventory?.clear()
     }
 
     override val duration = 1 * 35
@@ -46,20 +48,21 @@ class WinnerRoom(private val game: SquidGame) : Day {
         spawn.yaw = 90f
 
         game.getUsers().forEach {
-            ModHelper.timer(it, "До выключения сервера", duration - game.timer.time / 20 - 1)
+            val player = it.player!!
+            Anime.timer(player, "До выключения сервера", duration - game.timer.time / 20 - 1)
             Music.LOBBY.play(it)
 
             BestUser.values().forEach { best -> game.tryUpdateBest(best, it) }
 
-            BattlePassUtil.update(it.player!!, QuestType.PLAY, 1, false)
-            BattlePassUtil.update(it.player!!, QuestType.TIME, 10, false)
+            BattlePassUtil.update(player, QuestType.PLAY, 1, false)
+            BattlePassUtil.update(player, QuestType.TIME, 10, false)
 
             if (!it.spectator) {
-                ModTransfer().integer(it.number).send("func:win", it)
+                ModTransfer().integer(it.number).send("func:win", player)
                 it.stat.wins++
-                Arcade.deposit(it.player?.uniqueId!!, 5)
-                Arcade.distributeLootbox(it.player!!)
-                BattlePassUtil.update(it.player!!, QuestType.WIN, 1, false)
+                Arcade.deposit(player.uniqueId, 5)
+                Arcade.distributeLootbox(player)
+                BattlePassUtil.update(player, QuestType.WIN, 1, false)
             }
         }
 
@@ -87,7 +90,7 @@ class WinnerRoom(private val game: SquidGame) : Day {
                     .double(label.z)
                     .string(String.format(best.title, "" + best.get(user)))
                     .double(label.yaw + 0.0)
-                    .send("func:world-banner", it)
+                    .send("func:world-banner", it.player)
             }
         }
 
@@ -96,6 +99,6 @@ class WinnerRoom(private val game: SquidGame) : Day {
 
     override fun start() {}
 
-    override fun startPersonal(user: User) {}
+    override fun startPersonal(player: Player) {}
 
 }

@@ -9,8 +9,9 @@ import me.func.day.play.girl.GreenLight
 import me.func.day.play.glass.Glasses
 import me.func.day.play.night.Night
 import me.func.day.play.tug.TugOfWar
+import me.func.mod.Anime
 import me.func.mod.ModHelper
-import me.func.mod.ModTransfer
+import me.func.mod.conversation.ModTransfer
 import me.func.util.Music
 import me.func.util.MusicHelper
 import org.bukkit.GameMode
@@ -38,8 +39,8 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
 
         if (game.getUsers().size < NEED_PLAYERS && activeDay is WaitingGame && time / 20 > activeDay.duration) {
             time = 0
-            game.getVictims().forEach {
-                ModHelper.timer(it, "Ожидание игроков", activeDay.duration - game.timer.time / 20)
+            game.getVictims().mapNotNull { it.player }.forEach {
+                Anime.timer(it, "Ожидание игроков", activeDay.duration - game.timer.time / 20)
             }
             return
         }
@@ -68,7 +69,7 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
             if (activeDay !is WinnerRoom) {
                 activeDay = WinnerRoom(game)
                 activeDay.registerHandlers(game.fork())
-                game.getUsers().forEach { user -> activeDay.join(user) }
+                game.getUsers().mapNotNull { it.player }.forEach { activeDay.join(it) }
             } else {
                 game.close()
             }
@@ -82,7 +83,7 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
         dayIndex++
 
         game.after(3 * 20) {
-            game.getUsers().forEach {
+            game.getUsers().mapNotNull { it.player }.forEach {
                 ModTransfer()
                     .string(activeDay.title)
                     .string(activeDay.description)
@@ -95,13 +96,12 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
             user.player!!.openInventory.topInventory.clear()
             user.player!!.itemOnCursor = null
             user.player!!.activePotionEffects.forEach { user.player!!.removePotionEffect(it.type) }
-            ModHelper.clearAllCorpses(user)
             MusicHelper.stop(user)
 
             user.roundWinner = false
 
             // Смена дня
-            activeDay.join(user)
+            activeDay.join(user.player!!)
         }
 
         dayBefore.fork.unregisterAll()
@@ -110,24 +110,24 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
         stop = true
 
         activeDay.fork.after(1 * 20) {
-            game.getUsers().forEach {
-                ModHelper.timer(it, "Подготовка", PLAYER_PREPARE_DURATION)
-                ModHelper.notify(it, " §f► §bПодготовка игроков... §f◄ ")
+            game.getUsers().mapNotNull { it.player }.forEach {
+                Anime.timer(it, "Подготовка", PLAYER_PREPARE_DURATION)
+                Anime.killboardMessage(it, " §f► §bПодготовка игроков... §f◄ ")
             }
         }
 
         activeDay.fork.after(((PLAYER_PREPARE_DURATION - 3 + 1.5) * 20L).toLong()) {
             game.getUsers().forEach {
                 Music.ATTENTION.play(it)
-                ModHelper.attention(it)
+                Anime.counting321(it.player!!)
             }
         }
 
         activeDay.fork.after(PLAYER_PREPARE_DURATION * 20L + 40) {
             activeDay.start()
-            game.getUsers().forEach {
-                ModHelper.timer(it, "До окончания испытания", activeDay.duration)
-                ModHelper.notify(it, " §f► §aИспытание началось! §f◄ ")
+            game.getUsers().mapNotNull { it.player }.forEach {
+                Anime.timer(it, "До окончания испытания", activeDay.duration)
+                Anime.killboardMessage(it, " §f► §aИспытание началось! §f◄ ")
             }
             stop = false
         }
@@ -138,12 +138,12 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
             game.map.world.livingEntities.filter { it.hasMetadata("trash") }.forEach { it.remove() }
 
             game.getUsers().forEach {
-                ModHelper.timer(it, "Смена испытания", DAY_CHANGE_DURATION)
-                ModHelper.notify(it, " §f► §eОжидайте новой игры §f◄ ")
+                Anime.timer(it.player!!, "Смена испытания", DAY_CHANGE_DURATION)
+                Anime.killboardMessage(it.player!!, " §f► §eОжидайте новой игры §f◄ ")
                 if (!it.spectator) {
                     it.player?.gameMode = GameMode.ADVENTURE
                     if (!it.roundWinner)
-                        AcceptLose.accept(game, it)
+                        AcceptLose.accept(game, it.player!!)
                 }
             }
             stop = true

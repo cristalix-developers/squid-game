@@ -12,6 +12,7 @@ import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import me.func.battlepass.quest.ArcadeType
+import me.func.mod.Anime
 import me.func.mod.ModHelper
 import me.func.mod.conversation.ModLoader
 import me.func.user.User
@@ -80,10 +81,10 @@ class App : JavaPlugin() {
         userManager.isOptional = true
 
         // Arcade
-        Arcade.start("SQD-${Math.random() * 1000}", ArcadeType.SQD)
+        Arcade.start("SQD-${(Math.random() * 1000).toInt()}", ArcadeType.SQD)
 
         // Mods
-        ModLoader.loadAll("/mods")
+        ModLoader.loadAll("mods")
 
         // Respawn
         Bukkit.getMessenger().registerIncomingPluginChannel(app, "func:respawn") { _, player, _ ->
@@ -94,7 +95,7 @@ class App : JavaPlugin() {
                     val squidGame = game as SquidGame
 
                     if (squidGame.getVictims().size < MINIMUM_PLAYERS_RESPAWN) {
-                        ModHelper.notify(user, Formatting.error("Воскрешение недоступно!"))
+                        Anime.killboardMessage(player, Formatting.error("Воскрешение недоступно!"))
                         return@forEach
                     }
 
@@ -111,18 +112,18 @@ class App : JavaPlugin() {
                         user.respawn++
 
                         MinecraftServer.SERVER.postToMainThread {
-                            squidGame.timer.activeDay.startPersonal(user)
-                            user.player?.gameMode = GameMode.ADVENTURE
+                            squidGame.timer.activeDay.startPersonal(player)
+                            player.gameMode = GameMode.ADVENTURE
                         }
 
                         player.sendMessage(Formatting.fine("Спасибо за поддержку разработчика!"))
-                        squidGame.getUsers().forEach {
+                        squidGame.getUsers().mapNotNull { it.player }.forEach {
                             ModHelper.playersLeft(it, game.getVictims().size)
-                            ModHelper.notify(it, "§b${user.player?.name} §f#${user.number} §7снова вздохнул §b†")
+                            Anime.killboardMessage(it, "§b${player.name} §f#${user.number} §7снова вздохнул §b†")
                         }
                     }
                 } else {
-                    ModHelper.notify(user, Formatting.error("Не удалось вас воскресить!"))
+                    Anime.killboardMessage(player, Formatting.error("Не удалось вас воскресить!"))
                 }
             }
         }

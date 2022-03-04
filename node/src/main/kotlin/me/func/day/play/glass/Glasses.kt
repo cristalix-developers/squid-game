@@ -8,9 +8,9 @@ import me.func.SquidGame
 import me.func.app
 import me.func.day.Day
 import me.func.day.misc.Workers
+import me.func.mod.Anime
 import me.func.mod.ModHelper
-import me.func.mod.ModTransfer
-import me.func.user.User
+import me.func.mod.conversation.ModTransfer
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
@@ -37,15 +37,15 @@ class Glasses(private val game: SquidGame) : Day {
         )
     }.flatten()
 
-    override fun join(user: User) {
-        user.player?.teleport(spawn)
+    override fun join(player: Player) {
+        player.teleport(spawn)
 
         ModTransfer()
             .double(alert.x + 4.5)
             .double(alert.y + 4.5)
             .double(alert.z + 4.5)
             .integer(GLASS_DURABILITY)
-            .send("func:glass-alert", user)
+            .send("func:glass-alert", player)
     }
 
     override fun tick(time: Int) = time
@@ -59,7 +59,7 @@ class Glasses(private val game: SquidGame) : Day {
 
         fork.on<EntityDamageEvent> {
             if (entity is Player && cause == EntityDamageEvent.DamageCause.FALL && damage > 5.0) {
-                AcceptLose.accept(game, app.getUser(entity as Player))
+                AcceptLose.accept(game, entity as Player)
                 app.getUser(entity as Player).hero = true
             }
             isCancelled = true
@@ -75,7 +75,7 @@ class Glasses(private val game: SquidGame) : Day {
                 return@on
 
             if (to.distanceSquared(finish) < 11 * 11)
-                AcceptRoundWin.accept(game, user)
+                AcceptRoundWin.accept(game, player)
 
             val currentGlass = glasses.find { it.inside(player.location) }
             if (currentGlass != null) {
@@ -96,15 +96,17 @@ class Glasses(private val game: SquidGame) : Day {
     override fun start() {
         spawn.yaw = -180f
 
-        game.getUsers().forEach { startPersonal(it) }
+        game.getUsers().mapNotNull { it.player }.forEach { startPersonal(it) }
     }
 
-    override fun startPersonal(user: User) {
-        ModHelper.title(user, "§eВыбирайте из двух стекол")
+    override fun startPersonal(player: Player) {
+        Anime.title(player, "§eВыбирайте из двух стекол")
 
-        if (!user.spectator) {
-            user.player?.teleport(spawn)
-            user.roundWinner = false
+        app.getUser(player)?.let {
+            if (!it.spectator) {
+                player.teleport(spawn)
+                it.roundWinner = false
+            }
         }
     }
 }

@@ -73,8 +73,6 @@ object Winner {
         App::class.mod.registerChannel("func:win") {
             youWon.content = "Вы победили!\n§b${UIEngine.clientApi.minecraft().player.name} #${readInt()}"
             gui.open()
-
-            GlowEffect.showAlways(42, 189, 102, 0.5)
         }
 
         App::class.mod.registerChannel("func:world-banner") {

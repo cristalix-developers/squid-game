@@ -2,6 +2,8 @@ package me.func.day.play.girl
 
 import dev.implario.bukkit.item.item
 import me.func.SquidGame
+import me.func.mod.Anime
+import me.func.mod.Glow
 import me.func.mod.ModHelper
 import me.func.util.StandHelper
 import net.minecraft.server.v1_12_R1.EnumItemSlot
@@ -42,9 +44,9 @@ class Girl(val location: Location) {
     fun rotate(game: SquidGame) {
         forwardView = !canView()
 
-        game.getUsers().filter { !it.roundWinner }.forEach {
-            ModHelper.glow(it, if (forwardView) 255 else 0, 0, if (forwardView) 0 else 255)
-            ModHelper.title(it, (if (forwardView) "§c" else "§a") + "◉◉◉\n\n\n\n\n\n")
+        game.getUsers().filter { !it.roundWinner }.mapNotNull { it.player }.forEach {
+            Glow.animate(it, 0.4, if (forwardView) 255 else 0, 0, if (forwardView) 0 else 255)
+            Anime.title(it, (if (forwardView) "§c" else "§a") + "◉◉◉\n\n\n\n\n\n")
         }
 
         val angle = 15f
@@ -66,8 +68,5 @@ class Girl(val location: Location) {
         }
     }
 
-    fun canView(): Boolean {
-        return head.location.yaw == 0f
-    }
-
+    fun canView() = head.location.yaw == 0f
 }

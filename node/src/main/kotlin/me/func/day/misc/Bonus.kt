@@ -2,8 +2,8 @@ package me.func.day.misc
 
 import dev.implario.bukkit.item.item
 import me.func.app
+import me.func.mod.Glow
 import me.func.mod.ModHelper
-import me.func.user.User
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -66,7 +66,7 @@ enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolea
     fun give(player: Player): Boolean {
         if (stackable || !player.inventory.contains(itemStack)) {
             effect(player)
-            ModHelper.glow(app.getUser(player), 42, 189, 102)
+            Glow.animate(player, 0.4, 42, 189, 102)
             return true
         }
         return false

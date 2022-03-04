@@ -8,7 +8,6 @@ data class UserData(
     var lootbox: Int,
     var lootboxOpenned: Int,
 
-    var money: Int,
     var wins: Int,
     var kills: Int,
     var games: Int,

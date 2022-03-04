@@ -9,11 +9,7 @@ enum class Workers(private val title: String, private val uuid: UUID) {
     TRIANGLE("Треугольный", UUID.fromString("9a109585-e5e5-11ea-acca-1cb72caa35fd")),
     SQUARE("Квадратный", UUID.fromString("3089411e-2c69-11e8-b5ea-1cb72caa35fd")),;
 
-    fun spawn(location: Location) {
-        spawn(location, null)
-    }
+    fun spawn(location: Location) = spawn(location, null)
 
-    fun spawn(location: Location, name: String?) {
-        ModHelper.npc(location, uuid, name, null)
-    }
+    fun spawn(location: Location, name: String?) = ModHelper.npc(location, uuid, name, null)
 }

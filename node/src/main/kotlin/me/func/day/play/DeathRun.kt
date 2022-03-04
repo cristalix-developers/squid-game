@@ -5,11 +5,14 @@ import dev.implario.bukkit.event.on
 import me.func.SquidGame
 import me.func.accept.AcceptLose
 import me.func.accept.AcceptRoundWin
+import me.func.app
 import me.func.day.Day
+import me.func.mod.Glow
 import me.func.mod.ModHelper
-import me.func.mod.ModTransfer
+import me.func.mod.conversation.ModTransfer
 import me.func.user.User
 import me.func.util.Music
+import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import java.util.*
 
@@ -33,10 +36,10 @@ class DeathRun(private val game: SquidGame) : Day {
     private val okayLevel = 1.4
     private val handicap = 4
 
-    override fun join(user: User) {
-        user.player?.teleport(spawn)
+    override fun join(player: Player) {
+        player.teleport(spawn)
         ModHelper.banner(
-            user,
+            player,
             UUID.randomUUID(),
             spawn.x - 20,
             spawn.y - 0.6,
@@ -51,12 +54,12 @@ class DeathRun(private val game: SquidGame) : Day {
         if (time > 0 && time % 10 == 0) {
             game.getUsers().forEach {
                 if (underWater(it)) {
-                    ModHelper.glow(it, 42, 189, 102)
+                    Glow.animate(it.player!!, 0.4, 42, 189, 102)
                     if (!it.spectator && !it.roundWinner)
-                        AcceptLose.accept(game, it)
+                        AcceptLose.accept(game, it.player!!)
                 }
                 if (!it.roundWinner && !it.spectator && spawn.y + deltaY - okayLevel * 3 < it.player!!.location.y) {
-                    AcceptRoundWin.accept(game, it)
+                    AcceptRoundWin.accept(game, it.player!!)
                     it.timeOnDeathRun = (game.timer.time / 2.0).toInt() / 10.0
                 }
             }
@@ -78,29 +81,30 @@ class DeathRun(private val game: SquidGame) : Day {
             copy.set(barrierMin.x + it, barrierMin.y + 1, barrierMin.z)
             copy.block.setTypeAndDataFast(0, 0)
         }
-        game.getUsers().forEach { startPersonal(it) }
+        game.getUsers().mapNotNull { it.player }.forEach { startPersonal(it) }
     }
 
-    override fun startPersonal(user: User) {
-        Music.FUN.play(user)
-        user.roundWinner = false
-        game.after(handicap * 20L) {
-            ModTransfer()
-                .integer((duration - handicap / 1.5).toInt())
-                .integer(deltaY)
-                .send("func:water-move", user)
+    override fun startPersonal(player: Player) {
+        app.getUser(player)?.let {
+            Music.FUN.play(it)
+            it.roundWinner = false
+            game.after(handicap * 20L) {
+                ModTransfer()
+                    .integer((duration - handicap / 1.5).toInt())
+                    .integer(deltaY)
+                    .send("func:water-move", player)
+            }
+
+            if (game.timer.time / 20 > handicap) {
+                val highestUserY = game.getVictims().map { it.player!!.location.y }.maxByOrNull { it }
+                val nearestSafePoint = if (highestUserY == null) checkPoints.maxByOrNull { it.y }!!
+                else checkPoints.filter { it.y > highestUserY }.minByOrNull { it.y }!!
+
+                player.teleport(nearestSafePoint)
+            }
         }
-
-        if (game.timer.time / 20 > handicap) {
-            val highestUserY = game.getVictims().map { it.player!!.location.y }.maxByOrNull { it }
-            val nearestSafePoint = if (highestUserY == null) checkPoints.maxByOrNull { it.y }!!
-            else checkPoints.filter { it.y > highestUserY }.minByOrNull { it.y }!!
-
-            user.player?.teleport(nearestSafePoint)
-        }
     }
 
-    private fun underWater(user: User): Boolean {
-        return game.timer.time / 20 < duration && (game.timer.time / 20 - handicap) * deltaY / duration + spawn.y >= user.player!!.location.y + okayLevel
-    }
+    private fun underWater(user: User) =
+        game.timer.time / 20 < duration && (game.timer.time / 20 - handicap) * deltaY / duration + spawn.y >= user.player!!.location.y + okayLevel
 }

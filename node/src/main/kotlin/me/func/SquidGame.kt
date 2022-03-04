@@ -11,6 +11,7 @@ import me.func.accept.PreparePlayer
 import me.func.day.Timer
 import me.func.day.misc.Bonus
 import me.func.day.misc.Workers
+import me.func.mod.Anime
 import me.func.mod.ModHelper
 import me.func.top.BestUser
 import me.func.user.User
@@ -81,8 +82,8 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
 
         context.on<PlayerQuitEvent> {
             val count = getVictims().size
-            getUsers().forEach {
-                ModHelper.notify(it, "§c${player.displayName} §7покинул игру.")
+            getUsers().mapNotNull { it.player }.forEach {
+                Anime.killboardMessage(it, "§c${player.displayName} §7покинул игру.")
                 ModHelper.playersLeft(it, count)
             }
 

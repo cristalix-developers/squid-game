@@ -72,20 +72,5 @@ object Alert {
             )
             UIEngine.worldContexts.add(context)
         }
-
-        App::class.mod.registerChannel("func:alert") {
-            dayTitle.content = NetUtil.readUtf8(this)
-            lore.content = NetUtil.readUtf8(this)
-
-            dayTitleBox.animate(0.45, Easings.BACK_BOTH) {
-                offset.y += VECTOR + 50
-            }
-
-            UIEngine.schedule(8.2) {
-                dayTitleBox.animate(0.2, Easings.BACK_IN) {
-                    offset.y -= (VECTOR + 50)
-                }
-            }
-        }
     }
 }

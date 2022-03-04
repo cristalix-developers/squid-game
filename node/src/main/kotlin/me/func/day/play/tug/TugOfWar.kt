@@ -13,8 +13,10 @@ import me.func.battlepass.quest.QuestType
 import me.func.day.Day
 import me.func.day.misc.Bonus
 import me.func.day.misc.Workers
+import me.func.mod.Anime
+import me.func.mod.Glow
 import me.func.mod.ModHelper
-import me.func.mod.battlepass.BattlePass
+import me.func.protocol.GlowColor
 import me.func.user.User
 import me.func.util.Music
 import net.minecraft.server.v1_12_R1.EnumMoveType
@@ -60,10 +62,10 @@ class TugOfWar(private val game: SquidGame) : Day {
         spawn.yaw = -180f
     }
 
-    override fun join(user: User) {
-        user.player?.teleport(spawn)
+    override fun join(player: Player) {
+        player.teleport(spawn)
         if (game.timer.time > 0)
-            startPersonal(user)
+            startPersonal(player)
     }
 
     override fun tick(time: Int): Int {
@@ -111,7 +113,7 @@ class TugOfWar(private val game: SquidGame) : Day {
                 val team = getTeamByUser(user)
                 team.players.remove(user)
                 Bonus.JUMP.drop(bonus.minByOrNull { it.distanceSquared(team.spawn) }!!)
-                AcceptLose.accept(game, user)
+                AcceptLose.accept(game, entity as Player)
             }
         }
 
@@ -135,9 +137,9 @@ class TugOfWar(private val game: SquidGame) : Day {
                 if (attackerTeam == victimTeam || game.timer.stop) {
                     entity.remove()
                 } else {
-                    ModHelper.glow(victim, 255, 0, 0)
-                    ModHelper.title(user, "§aСкинуть!\n\n\n")
-                    ModHelper.glow(user, 0, 0, 255)
+                    Glow.animate(hitEntity as Player, 0.4, GlowColor.RED)
+                    Anime.title(player, "§aСкинуть!\n\n\n")
+                    Glow.animate(player, 0.4, GlowColor.GREEN)
 
                     user.tugs++
                     Arcade.deposit(user.player?.uniqueId!!, 2)
@@ -149,45 +151,43 @@ class TugOfWar(private val game: SquidGame) : Day {
         fork.on<PlayerUseUnknownEntityEvent> {
             if (hand == EquipmentSlot.OFF_HAND)
                 return@on
-            val user = app.getUser(player)
 
-            if (user.spectator)
+            if (app.getUser(player).spectator)
                 return@on
 
-            addToTeam(user)
+            addToTeam(player)
         }
     }
 
     override fun start() {
         gameStarted = true
+        teams.values.forEach { UtilEntity.setScale(it.gear, 4.1, 4.1, 4.1) }
+        game.getUsers().mapNotNull { it.player }.forEach { startPersonal(it) }
+    }
 
-        teams.values.forEach {
-            UtilEntity.setScale(it.gear, 4.1, 4.1, 4.1)
-        }
+    override fun startPersonal(player: Player) {
+        player.removePotionEffect(PotionEffectType.SLOW)
+        addToTeam(player)
 
-        game.getUsers().forEach {
-            startPersonal(it)
+        app.getUser(player)?.let {
+            Music.FUN.play(it)
+            it.roundWinner = true
         }
     }
 
-    override fun startPersonal(user: User) {
-        Music.FUN.play(user)
-        addToTeam(user)
-        user.player!!.removePotionEffect(PotionEffectType.SLOW)
-        user.roundWinner = true
-    }
+    private fun addToTeam(player: Player) {
+        app.getUser(player)?.let { user ->
+            if (user.spectator || teams.values.firstOrNull { it.players.contains(user) } != null)
+                return
 
-    private fun addToTeam(user: User) {
-        if (user.spectator || teams.values.firstOrNull { it.players.contains(user) } != null || user.player == null)
-            return
+            player.inventory?.addItem(hook)
 
-        user.player?.inventory?.addItem(hook)
+            val team = getWeakTeam()
 
-        val team = getWeakTeam()
-
-        user.player?.teleport(team?.spawn)
-        user.player?.setMetadata("tug-team", FixedMetadataValue(app, team?.uuid))
-        team?.players?.add(user)
+            player.teleport(team?.spawn)
+            player.setMetadata("tug-team", FixedMetadataValue(app, team?.uuid))
+            team?.players?.add(user)
+        }
     }
 
     private fun getWeakTeam() = teams.values.minByOrNull { it.players.size }

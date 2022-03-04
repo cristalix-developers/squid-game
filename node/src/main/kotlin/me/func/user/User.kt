@@ -7,12 +7,10 @@ import net.minecraft.server.v1_12_R1.Packet
 import net.minecraft.server.v1_12_R1.PlayerConnection
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
-import ru.cristalix.core.account.IAccountService
 import java.util.*
 
 class User(session: KensukeSession, stat: UserData?) : IBukkitKensukeUser {
 
-    private var connection: PlayerConnection? = null
     var team: Figure? = null
     var spectator = false
     var roundWinner = true
@@ -44,18 +42,9 @@ class User(session: KensukeSession, stat: UserData?) : IBukkitKensukeUser {
     init {
         this.stat = stat ?: UserData(
             UUID.fromString(session.userId),
-            0, 0,
-            0, 0, 0, 0,
+            0, 0, 0, 0, 0,
             true, 0, 0, 0, 0, null
         )
         this.session = session
-    }
-
-    fun sendPacket(packet: Packet<*>) {
-        if (player == null)
-            return
-        if (connection == null)
-            connection = (player as CraftPlayer).handle.playerConnection
-        connection?.sendPacket(packet)
     }
 }

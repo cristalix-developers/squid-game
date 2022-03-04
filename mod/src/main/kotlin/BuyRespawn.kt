@@ -75,7 +75,6 @@ object BuyRespawn {
                 color = Color(42, 102, 189, 0.78)
                 open = false
                 UIEngine.clientApi.clientConnection().sendPayload("func:respawn", Unpooled.buffer())
-                GlowEffect.show(0.5, 0, 0, 255, 0.8)
             }
         }
     }

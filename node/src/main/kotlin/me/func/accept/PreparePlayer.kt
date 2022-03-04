@@ -1,15 +1,23 @@
 package me.func.accept
 
 import dev.implario.bukkit.item.item
+import jdk.nashorn.internal.objects.NativeArray.forEach
+import me.func.App
 import me.func.SquidGame
 import me.func.app
 import me.func.day.WaitingGame
+import me.func.mod.Anime
 import me.func.mod.ModHelper
 import me.func.mod.conversation.ModLoader
+import net.minecraft.server.v1_12_R1.BlockPosition
+import net.minecraft.server.v1_12_R1.World
+import org.bukkit.Bukkit
 import org.bukkit.GameMode
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Player
+import kotlin.math.abs
 
 object PreparePlayer : (Player, SquidGame) -> (Unit) {
 
@@ -28,9 +36,11 @@ object PreparePlayer : (Player, SquidGame) -> (Unit) {
     }
 
     override fun invoke(player: Player, game: SquidGame) {
-        game.context.after(1) {
-            player.setResourcePack("", "")
-            ModLoader.manyToOne(player)
+        player.setResourcePack("", "")
+        Bukkit.getScheduler().runTaskLater(app, { player.setResourcePack("", "") }, 10)
+
+        game.after(1) {
+            ModLoader.send("mod-bundle.jar", player)
 
             val user = app.getUser(player)
             val message: String
@@ -53,12 +63,12 @@ object PreparePlayer : (Player, SquidGame) -> (Unit) {
 
                 message = "§a${player.name} §7смотрит игру."
             }
-            game.timer.activeDay.join(user)
+            game.timer.activeDay.join(player)
 
             val users = game.getVictims()
-            users.forEach { current ->
+            users.mapNotNull { it.player }.forEach { current ->
                 ModHelper.playersLeft(current, users.size)
-                ModHelper.notify(current, message)
+                Anime.killboardMessage(current, message)
             }
         }
     }
@@ -72,4 +82,3 @@ object PreparePlayer : (Player, SquidGame) -> (Unit) {
         return users.size
     }
 }
-

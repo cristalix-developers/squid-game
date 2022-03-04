@@ -9,6 +9,8 @@ import me.func.app
 import me.func.battlepass.BattlePassUtil
 import me.func.battlepass.quest.QuestType
 import me.func.day.Day
+import me.func.mod.Anime
+import me.func.mod.Glow
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.util.Music
@@ -32,9 +34,7 @@ class Night(private val game: SquidGame) : Day {
     private val blindness = PotionEffect(PotionEffectType.BLINDNESS, 20 * 5, 1)
     private val generators = game.map.getLabels("knife").map { Knife(it) }
 
-    override fun join(user: User) {
-        user.player?.teleport(game.spawns.random())
-    }
+    override fun join(player: Player) { player.teleport(game.spawns.random()) }
 
     override fun tick(time: Int): Int {
         if (!game.timer.stop) {
@@ -49,7 +49,7 @@ class Night(private val game: SquidGame) : Day {
                 }
                 it.timeLeft--
                 if (it.timeLeft <= 0) {
-                    AcceptLose.accept(game, it.owner!!)
+                    AcceptLose.accept(game, it.owner!!.player!!)
                     it.spawn()
                 }
             }
@@ -62,7 +62,7 @@ class Night(private val game: SquidGame) : Day {
 
         fork.on<PlayerPickupItemEvent> {
             if (item.itemStack.getType() == Material.IRON_SWORD && !player.inventory.contains(Material.IRON_SWORD)) {
-                generators.minByOrNull { it.generator.distanceSquared(player.location) }!!.get(app.getUser(player))
+                generators.minByOrNull { it.generator.distanceSquared(player.location) }!!.get(player)
             } else {
                 isCancelled = true
             }
@@ -78,13 +78,12 @@ class Night(private val game: SquidGame) : Day {
                 damage = 0.0
                 victim.health -= 2
                 if (victim.health >= HEALTH_BARRIER) {
-                    val user = app.getUser(victim)
-                    ModHelper.glow(user, 255, 0, 0)
-                    ModHelper.title(user, "§cВас атакуют!\n\n\n")
+                    Glow.animate(victim, 0.4, 255, 0, 0)
+                    Anime.title(victim, "§cВас атакуют!\n\n\n")
                 } else {
                     (damager as Player).itemInHand = null
                     generators.filter { it.owner != null && it.owner!!.player == damager }.forEach {
-                        ModHelper.glow(it.owner!!, 0, 0, 255)
+                        Glow.animate(it.owner!!.player!!, 0.4, 0, 0, 255)
                         it.spawn()
                     }
                 }
@@ -93,9 +92,10 @@ class Night(private val game: SquidGame) : Day {
             }
         }
         fork.on<EntityDamageEvent> {
-            if (!game.timer.stop && entity is Player && (entity as Player).health < HEALTH_BARRIER) {
-                val user = app.getUser(entity as Player)
-                AcceptLose.accept(game, user)
+            val player = entity
+            if (!game.timer.stop && player is Player && player.health < HEALTH_BARRIER) {
+                val user = app.getUser(player)
+                AcceptLose.accept(game, player)
                 user.kills++
                 Arcade.deposit(user.player?.uniqueId!!, 2)
                 BattlePassUtil.update(user.player!!, QuestType.KILL, 1, false)
@@ -107,14 +107,16 @@ class Night(private val game: SquidGame) : Day {
 
     override fun start() {
         generators.forEach { it.spawn() }
-        game.getUsers().forEach { startPersonal(it) }
+        game.getUsers().mapNotNull { it.player }.forEach { startPersonal(it) }
     }
 
-    override fun startPersonal(user: User) {
-        Music.LOBBY.play(user)
-        user.player?.health = user.player!!.maxHealth
-        user.roundWinner = true
-        user.player?.addPotionEffect(blindness)
-        user.player?.teleport(game.spawns.random())
+    override fun startPersonal(player: Player) {
+        player.health = player.maxHealth
+        player.addPotionEffect(blindness)
+        player.teleport(game.spawns.random())
+        app.getUser(player)?.let {
+            Music.LOBBY.play(it)
+            it.roundWinner = true
+        }
     }
 }

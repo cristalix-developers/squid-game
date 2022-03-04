@@ -6,14 +6,15 @@ import me.func.accept.PreparePlayer.musicOff
 import me.func.accept.PreparePlayer.musicOn
 import me.func.SquidGame
 import me.func.app
+import me.func.mod.Anime
 import me.func.mod.ModHelper
 import me.func.user.User
 import me.func.util.Music
 import me.func.util.MusicHelper
 import org.bukkit.GameMode
+import org.bukkit.entity.Player
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerInteractEvent
-import ru.cristalix.core.formatting.Formatting
 
 class WaitingGame(private val game: SquidGame) : Day {
 
@@ -21,16 +22,18 @@ class WaitingGame(private val game: SquidGame) : Day {
     override val description = "Приятной игры!"
     override val title = "Игра в кальмара"
 
-    override fun join(user: User) {
-        user.spectator = false
-        user.player?.teleport(game.spawns.random())
+    override fun join(player: Player) {
+        player.teleport(game.spawns.random())
+        app.getUser(player)?.let { user ->
+            user.spectator = false
 
-        fork.after(1) {
-            ModHelper.timer(user, "Ожидание игроков", duration - game.timer.time / 20 - 1)
-            Music.LOBBY.play(user)
+            fork.after(1) {
+                Anime.timer(player, "Ожидание игроков", duration - game.timer.time / 20 - 1)
+                Music.LOBBY.play(user)
+            }
         }
 
-        user.player?.gameMode = GameMode.ADVENTURE
+        player.gameMode = GameMode.ADVENTURE
     }
 
     override val duration = 1 * 25
@@ -48,11 +51,11 @@ class WaitingGame(private val game: SquidGame) : Day {
 
                 if (!user.stat.music) {
                     player.itemInHand = musicOff
-                    ModHelper.notify(user, "§cМузыка отключена")
+                    Anime.killboardMessage(player, "§cМузыка отключена")
                     MusicHelper.stop(user)
                 } else {
                     player.itemInHand = musicOn
-                    ModHelper.notify(user, "§bМузыка включена")
+                    Anime.killboardMessage(player, "§bМузыка включена")
                     Music.LOBBY.play(user)
                 }
             }
@@ -61,6 +64,6 @@ class WaitingGame(private val game: SquidGame) : Day {
 
     override fun start() {}
 
-    override fun startPersonal(user: User) {}
+    override fun startPersonal(player: Player) {}
 
 }
