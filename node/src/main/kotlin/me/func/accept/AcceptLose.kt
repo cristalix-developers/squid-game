@@ -9,10 +9,13 @@ import me.func.mod.Glow
 import me.func.mod.ModHelper
 import me.func.mod.conversation.ModTransfer
 import me.func.util.Firework
+import net.minecraft.server.v1_12_R1.MinecraftServer
 import org.bukkit.Color
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
+import ru.cristalix.core.formatting.Formatting
+import sun.audio.AudioPlayer.player
 import java.util.function.BiConsumer
 
 object AcceptLose : BiConsumer<SquidGame, Player> {
@@ -21,9 +24,6 @@ object AcceptLose : BiConsumer<SquidGame, Player> {
         app.getUser(player)?.let { user ->
             if (user.spectator)
                 return
-
-            if (game.getVictims().size >= MINIMUM_PLAYERS_RESPAWN)
-                ModTransfer().integer(RESPAWN_COST + 2 * user.respawn).send("func:try-respawn", player)
 
             user.roundWinner = false
             user.spectator = true
@@ -45,6 +45,29 @@ object AcceptLose : BiConsumer<SquidGame, Player> {
             }
 
             Glow.animate(player, 0.4, 255, 0, 0)
+
+            // Воскрешение игрока
+            if (game.lite && user.hearts > 0) {
+                user.player?.inventory?.clear()
+                user.spectator = false
+                user.roundWinner = true
+
+                var hearts = "§c"
+                repeat(user.hearts) { hearts = "$hearts❤" }
+
+                player.sendActionBar("§e§lПотеряна жизнь! §c§l$hearts осталось")
+
+                MinecraftServer.SERVER.postToMainThread {
+                    game.timer.activeDay.startPersonal(player)
+                    player.gameMode = GameMode.ADVENTURE
+                }
+
+                user.hearts--
+            }
+            // Показать игроку меню покупки воскрешения
+            if (game.getVictims().size >= MINIMUM_PLAYERS_RESPAWN && (user.hearts < 1 || !game.lite)) {
+                ModTransfer().integer(RESPAWN_COST + 2 * user.respawn).send("func:try-respawn", player)
+            }
         }
     }
 }

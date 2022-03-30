@@ -45,8 +45,6 @@ object PreparePlayer : (Player, SquidGame) -> (Unit) {
             val user = app.getUser(player)
             val message: String
 
-            user.stat.lastSeenName = game.cristalix.getPlayer(player.uniqueId).displayName
-
             if (game.timer.activeDay is WaitingGame) {
                 player.gameMode = GameMode.ADVENTURE
                 user.roundWinner = true
@@ -63,6 +61,8 @@ object PreparePlayer : (Player, SquidGame) -> (Unit) {
 
                 message = "§a${player.name} §7смотрит игру."
             }
+
+            user.stat.lastSeenName = game.cristalix.getPlayer(player.uniqueId).displayName
             game.timer.activeDay.join(player)
 
             val users = game.getVictims()

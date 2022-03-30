@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
+import ru.cristalix.core.formatting.Formatting
 
 class GreenLight(private val game: SquidGame) : Day {
 
@@ -149,6 +150,9 @@ class GreenLight(private val game: SquidGame) : Day {
         canKill = true
         walls = false
         game.getUsers().forEach {
+            if (game.lite) {
+                it.player?.sendMessage(Formatting.fine("§7Запущена §f§lLite §7версия игры! У вас есть §c§lТРИ §7жизни."))
+            }
             Music.KILL_FAST.play(it)
             startPersonal(it.player!!)
         }

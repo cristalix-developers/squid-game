@@ -17,6 +17,7 @@ class User(session: KensukeSession, stat: UserData?) : IBukkitKensukeUser {
     var stat: UserData
     var number = 0
 
+    var hearts = 3
     var respawn = 0
     var kills = 0
     var blockBreak = 0

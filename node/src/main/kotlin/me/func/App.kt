@@ -37,8 +37,8 @@ import java.util.*
 
 lateinit var app: App
 
-const val NEED_PLAYERS = 1
-const val MAX_PLAYERS = 200
+const val NEED_PLAYERS = 3
+const val MAX_PLAYERS = 150
 const val RESPAWN_COST = 3
 const val MINIMUM_PLAYERS_RESPAWN = 8
 
@@ -81,7 +81,7 @@ class App : JavaPlugin() {
         userManager.isOptional = true
 
         // Arcade
-        Arcade.start("SQD-${(Math.random() * 1000).toInt()}", ArcadeType.SQD)
+        Arcade.start(ArcadeType.SQD)
 
         // Mods
         ModLoader.loadAll("mods")

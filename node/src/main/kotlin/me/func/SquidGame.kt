@@ -32,6 +32,7 @@ import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.*
 import ru.cristalix.core.transfer.TransferService
 import java.util.*
+import kotlin.properties.Delegates
 
 data class SquidGameSettings(
     val teams: List<List<UUID>>
@@ -51,7 +52,8 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
 
     val spawns: MutableList<Label> = map.getLabels("spawn")
     val spawn: Label = map.getLabel("start")
-    val transferService = TransferService(cristalix.client)
+    private val transferService = TransferService(cristalix.client)
+    var lite by Delegates.notNull<Boolean>()
 
     override fun getSpawnLocation(playerId: UUID): Location = spawn
 
@@ -136,6 +138,8 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
         }
 
         transferService.transferBatch(settings.teams.flatten(), cristalix.realmId)
+
+        after(1) { lite = players.size < 10 }
     }
 
     fun tryUpdateBest(scoreType: BestUser, user: User) {
