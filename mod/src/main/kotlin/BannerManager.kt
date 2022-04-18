@@ -38,7 +38,7 @@ object BannerManager {
 
         }
 
-        App::class.mod.registerChannel("func:banner") {
+        App::class.java.mod.registerChannel("func:banner") {
             val uuid = NetUtil.readUtf8(this)
             val x = readDouble()
             val y = readDouble()
@@ -67,12 +67,12 @@ object BannerManager {
                 UIEngine.worldContexts.add(context)
             }
         }
-        App::class.mod.registerChannel("func:banner-clear") {
+        App::class.java.mod.registerChannel("func:banner-clear") {
             banner.forEach { (_, it) -> UIEngine.worldContexts.remove(it) }
             banner.clear()
         }
 
-        App::class.mod.registerChannel("func:water-move") {
+        App::class.java.mod.registerChannel("func:water-move") {
             animation = true
             val duration = readInt()
             banner.forEach { (_, it) -> it.animate(duration) {

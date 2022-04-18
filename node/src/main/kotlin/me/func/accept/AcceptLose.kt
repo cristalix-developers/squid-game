@@ -14,8 +14,6 @@ import org.bukkit.Color
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
-import ru.cristalix.core.formatting.Formatting
-import sun.audio.AudioPlayer.player
 import java.util.function.BiConsumer
 
 object AcceptLose : BiConsumer<SquidGame, Player> {

@@ -1,6 +1,7 @@
 package me.func.day.play.girl
 
 import dev.implario.bukkit.item.item
+import dev.implario.bukkit.item.itemBuilder
 import me.func.SquidGame
 import me.func.mod.Anime
 import me.func.mod.Glow
@@ -18,19 +19,19 @@ class Girl(val location: Location) {
     private val staticBody = StandHelper(location)
         .invisible(true)
         .gravity(false)
-        .slot(EnumItemSlot.HEAD, item {
+        .slot(EnumItemSlot.HEAD, itemBuilder {
             type = Material.CLAY_BALL
             nbt("squidgame", "body")
-        }).marker(true)
+        }.build()).marker(true)
         .build()
 
     private val head = StandHelper(location.clone().add(0.0, 3.8, 0.0))
         .invisible(true)
         .gravity(false)
-        .slot(EnumItemSlot.HEAD, item {
+        .slot(EnumItemSlot.HEAD, itemBuilder {
             type = Material.CLAY_BALL
             nbt("squidgame", "head")
-        }).marker(true)
+        }.build()).marker(true)
         .build()
 
     init {

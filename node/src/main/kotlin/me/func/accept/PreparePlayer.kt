@@ -1,7 +1,7 @@
 package me.func.accept
 
 import dev.implario.bukkit.item.item
-import jdk.nashorn.internal.objects.NativeArray.forEach
+import dev.implario.bukkit.item.itemBuilder
 import me.func.App
 import me.func.SquidGame
 import me.func.app
@@ -21,19 +21,19 @@ import kotlin.math.abs
 
 object PreparePlayer : (Player, SquidGame) -> (Unit) {
 
-    val musicOn = item {
+    val musicOn = itemBuilder {
         type = Material.CLAY_BALL
         nbt("other", "settings1")
         text("§cОтключить музыку")
-    }
+    }.build()
 
-    val musicOff = item {
+    val musicOff = itemBuilder {
         type = Material.CLAY_BALL
         enchant(Enchantment.LUCK, 1)
         nbt("other", "settings1")
         nbt("HideFlags", 63)
         text("§bВключить музыку")
-    }
+    }.build()
 
     override fun invoke(player: Player, game: SquidGame) {
         player.setResourcePack("", "")

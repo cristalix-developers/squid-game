@@ -92,7 +92,7 @@ object BuyRespawn {
         }
         gui.color = Color(0, 0, 0, 0.82)
 
-        App::class.mod.registerChannel("func:try-respawn") {
+        App::class.java.mod.registerChannel("func:try-respawn") {
             gui.open()
             open = true
             prise = readInt()

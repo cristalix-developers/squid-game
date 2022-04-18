@@ -3,6 +3,7 @@ package me.func.day.play.figure
 import dev.implario.bukkit.event.EventContext
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.item.item
+import dev.implario.bukkit.item.itemBuilder
 import me.func.SquidGame
 import me.func.accept.AcceptRoundWin
 import me.func.app
@@ -41,12 +42,12 @@ class BreakForm(private val game: SquidGame) : Day {
         game.map.getLabels("cook-" + figure.name.toLowerCase()).map { Cookie(figure, it) }
     }
 
-    private val pickaxe = item {
+    private val pickaxe = itemBuilder {
         type = Material.GOLD_PICKAXE
         enchant(Enchantment.DIG_SPEED, 6)
         text("§bКирка")
         nbt("Unbreakable", 1)
-    }
+    }.build()
 
     init {
         spawn.yaw = 180f

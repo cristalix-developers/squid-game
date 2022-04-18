@@ -80,7 +80,7 @@ object PlayerLeftManager {
 
 
     init {
-        App::class.mod.registerChannel("func:left") {
+        App::class.java.mod.registerChannel("func:left") {
             val size = readInt()
             if (size < 0) {
                 odometer.enabled = false

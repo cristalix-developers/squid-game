@@ -70,12 +70,12 @@ object Winner {
         }
         gui.color = Color(0, 0, 0, 0.82)
 
-        App::class.mod.registerChannel("func:win") {
+        App::class.java.mod.registerChannel("func:win") {
             youWon.content = "Вы победили!\n§b${UIEngine.clientApi.minecraft().player.name} #${readInt()}"
             gui.open()
         }
 
-        App::class.mod.registerChannel("func:world-banner") {
+        App::class.java.mod.registerChannel("func:world-banner") {
             val context = Context3D(V3(readDouble() - 0.5, readDouble() - 0.4, readDouble() - 0.5))
 
             val text = NetUtil.readUtf8(this)

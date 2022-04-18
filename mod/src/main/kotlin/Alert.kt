@@ -51,7 +51,7 @@ object Alert {
     init {
         UIEngine.overlayContext + dayTitleBox
 
-        App::class.mod.registerChannel("func:glass-alert") {
+        App::class.java.mod.registerChannel("func:glass-alert") {
             val context = Context3D(V3(readDouble(), readDouble(), readDouble()))
 
             context.addChild(

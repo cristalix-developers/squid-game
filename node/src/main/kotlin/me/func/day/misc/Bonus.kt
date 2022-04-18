@@ -1,6 +1,7 @@
 package me.func.day.misc
 
 import dev.implario.bukkit.item.item
+import dev.implario.bukkit.item.itemBuilder
 import me.func.app
 import me.func.mod.Glow
 import me.func.mod.ModHelper
@@ -12,23 +13,23 @@ import org.bukkit.metadata.FixedMetadataValue
 
 enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolean, val effect: (Player) -> Unit) {
 
-    SPEED(item {
+    SPEED(itemBuilder {
         type = Material.CLAY_BALL
         text("§bСкорость §l§fПКМ")
         nbt("bonus", "speed")
         nbt("museum", "small_crystal_blue")
-    }, false, { }),
-    WEB(item {
+    }.build(), false, { }),
+    WEB(itemBuilder {
         type = Material.WEB
         text("§bПаутина §l§fКИНУТЬ")
         nbt("bonus", "web")
-    }, false, { }),
-    SUPER_SONIC(item {
+    }.build(), false, { }),
+    SUPER_SONIC(itemBuilder {
         type = Material.CLAY_BALL
         text("§bСкорость 1")
         nbt("bonus", "super_sonic")
         nbt("museum", "small_crystal_blue")
-    }, false, {
+    }.build(), false, {
         it.player?.addPotionEffect(
             org.bukkit.potion.PotionEffect(
                 org.bukkit.potion.PotionEffectType.SPEED,
@@ -37,18 +38,18 @@ enum class Bonus(private val itemStack: ItemStack, private val stackable: Boolea
             )
         )
     }),
-    SNOWBALL(item {
+    SNOWBALL(itemBuilder {
         type = Material.SNOW_BALL
         text("§bСнаряд §l§fПКМ")
         nbt("bonus", "snowball")
-    }, true, { }),
-    JUMP(item {
+    }.build(), true, { }),
+    JUMP(itemBuilder {
         type = Material.CLAY_BALL
         text("§aПрыгучесть 3")
         nbt("museum", "small_crystal_green")
         nbt("bonus", "jump")
         nbt("random", Math.random() * 1000) // make item non-stackable
-    }, false, {
+    }.build(), false, {
         it.player?.addPotionEffect(
             org.bukkit.potion.PotionEffect(
                 org.bukkit.potion.PotionEffectType.JUMP,
