@@ -68,12 +68,7 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
             if (activeDay !is WinnerRoom) {
                 activeDay = WinnerRoom(game)
                 activeDay.registerHandlers(game.fork())
-                game.getUsers().mapNotNull { it.player }.forEach {
-                    it.activePotionEffects.forEach { effect ->
-                        it.removePotionEffect(effect.type)
-                    }
-                    activeDay.join(it)
-                }
+                game.getUsers().mapNotNull { it.player }.forEach { activeDay.join(it) }
             } else {
                 game.close()
             }
@@ -99,13 +94,16 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
             user.player!!.inventory.clear()
             user.player!!.openInventory.topInventory.clear()
             user.player!!.itemOnCursor = null
-            user.player!!.activePotionEffects.forEach { user.player!!.removePotionEffect(it.type) }
             MusicHelper.stop(user)
 
             user.roundWinner = false
 
             // Смена дня
             activeDay.join(user.player!!)
+
+            game.after(5) {
+                user.player!!.activePotionEffects.forEach { user.player!!.removePotionEffect(it.type) }
+            }
         }
 
         dayBefore.fork.unregisterAll()
