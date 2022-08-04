@@ -37,7 +37,7 @@ class TntRun(private val game: SquidGame) : Day {
         if (time % 5 == 0 && time > 0) {
             game.getVictims().forEach {
                 it.blockBreak++
-                downgrade(getBlockBelowPlayer(it.player!!.location.blockY, it.player!!.location)!!)
+                downgrade(getBlockBelowPlayer(it.player!!.location.clone().subtract(0.0, 1.0, 0.0).blockY, it.player!!.location)!!)
             }
         }
         if (!game.timer.stop && time % 5 == 0 && time > 0) {
