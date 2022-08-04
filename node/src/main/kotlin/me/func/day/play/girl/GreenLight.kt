@@ -10,7 +10,6 @@ import me.func.day.Day
 import me.func.day.PLAYER_PREPARE_DURATION
 import me.func.day.misc.Bonus
 import me.func.day.misc.Workers
-import me.func.user.User
 import me.func.util.Music
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -97,6 +96,7 @@ class GreenLight(private val game: SquidGame) : Day {
                     player.removePotionEffect(PotionEffectType.SLOW)
                     fork.after(6 * 20) { player.addPotionEffects(effects) }
                 } else if (item.getType() == Material.WEB){
+                    if (player.eyeLocation.z <= deathLineZ) return@on
                     val web = game.map.world.spawnFallingBlock(player.eyeLocation, Material.WEB, 0)
                     web.velocity = player.eyeLocation.direction
                     web.dropItem = false

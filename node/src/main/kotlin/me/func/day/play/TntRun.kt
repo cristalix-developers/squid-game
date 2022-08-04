@@ -7,8 +7,8 @@ import me.func.accept.AcceptLose
 import me.func.app
 import me.func.day.Day
 import me.func.day.misc.Bonus
-import me.func.user.User
 import me.func.util.Music
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
@@ -37,7 +37,7 @@ class TntRun(private val game: SquidGame) : Day {
         if (time % 5 == 0 && time > 0) {
             game.getVictims().forEach {
                 it.blockBreak++
-                downgrade(it.player!!.location.block.getRelative(BlockFace.DOWN))
+                downgrade(getBlockBelowPlayer(it.player!!.location.blockY, it.player!!.location)!!)
             }
         }
         if (!game.timer.stop && time % 5 == 0 && time > 0) {
@@ -111,5 +111,23 @@ class TntRun(private val game: SquidGame) : Day {
 
     private fun generateBonus() {
         drop.random().drop(bonus.random())
+    }
+
+    private fun getBlockBelowPlayer(y: Int, loc: Location): Block? {
+        val world = loc.world
+        val x = loc.x
+        val z = loc.z
+
+        val block1 = Location(world, x + 0.3, y.toDouble(), z - 0.3).block
+        if(block1.type !== Material.AIR) return block1
+
+        val block2 = Location(world, x - 0.3, y.toDouble(), z + 0.3).block
+        if(block2.type !== Material.AIR) return block2
+
+        val block3 = Location(world, x + 0.3, y.toDouble(), z + 0.3).block
+        if(block3.type !== Material.AIR) return block3
+
+        val block4 = Location(world, x - 0.3, y.toDouble(), z - 0.3).block
+        return if(block4.type !== Material.AIR) block4 else null
     }
 }

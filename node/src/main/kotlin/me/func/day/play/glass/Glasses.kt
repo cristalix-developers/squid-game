@@ -9,7 +9,6 @@ import me.func.app
 import me.func.day.Day
 import me.func.day.misc.Workers
 import me.func.mod.Anime
-import me.func.mod.ModHelper
 import me.func.mod.conversation.ModTransfer
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -26,6 +25,7 @@ class Glasses(private val game: SquidGame) : Day {
     override val description = "Вам нужно выбирать одно из\nдвух стёкол, чтобы победить"
     override val title = "Дорога стёкол"
 
+    private var start = false
     private val spawn = game.map.getLabel("day5").toCenterLocation()
     private val alert = game.map.getLabel("alert")
     private val finish = game.map.getLabel("finish-glass").toCenterLocation()
@@ -79,6 +79,8 @@ class Glasses(private val game: SquidGame) : Day {
 
             val currentGlass = glasses.find { it.inside(player.location) }
             if (currentGlass != null) {
+                if (!start) return@on
+
                 if (!currentGlass.strong && currentGlass.standing) {
                     currentGlass.kill(game)
                     player.velocity = nullVector
@@ -94,6 +96,7 @@ class Glasses(private val game: SquidGame) : Day {
     }
 
     override fun start() {
+        start = true
         spawn.yaw = -180f
 
         game.getUsers().mapNotNull { it.player }.forEach { startPersonal(it) }

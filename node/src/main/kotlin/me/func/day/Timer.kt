@@ -10,7 +10,6 @@ import me.func.day.play.glass.Glasses
 import me.func.day.play.night.Night
 import me.func.day.play.tug.TugOfWar
 import me.func.mod.Anime
-import me.func.mod.ModHelper
 import me.func.mod.conversation.ModTransfer
 import me.func.util.Music
 import me.func.util.MusicHelper
@@ -69,7 +68,12 @@ class Timer(private val game: SquidGame) : BukkitRunnable() {
             if (activeDay !is WinnerRoom) {
                 activeDay = WinnerRoom(game)
                 activeDay.registerHandlers(game.fork())
-                game.getUsers().mapNotNull { it.player }.forEach { activeDay.join(it) }
+                game.getUsers().mapNotNull { it.player }.forEach {
+                    it.activePotionEffects.forEach { effect ->
+                        it.removePotionEffect(effect.type)
+                    }
+                    activeDay.join(it)
+                }
             } else {
                 game.close()
             }
