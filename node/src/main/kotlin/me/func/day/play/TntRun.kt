@@ -25,6 +25,8 @@ class TntRun(private val game: SquidGame) : Day {
     override val title = "Аккуратность"
     override lateinit var fork: EventContext
 
+    private val blocks = arrayOf(Material.LIGHT_BLUE_GLAZED_TERRACOTTA, Material.RED_GLAZED_TERRACOTTA, Material.WHITE_GLAZED_TERRACOTTA, Material.YELLOW_GLAZED_TERRACOTTA, Material.PINK_GLAZED_TERRACOTTA)
+
     private val bonus = game.map.getLabels("tnt-bonus").map { it.clone().add(0.0, 2.0, 0.0) }
     private val slow = PotionEffect(PotionEffectType.SLOW, 2 * 20, 2)
 
@@ -56,7 +58,7 @@ class TntRun(private val game: SquidGame) : Day {
         }
 
         fork.on<ProjectileHitEvent> {
-            if (hitBlock != null) {
+            if (hitBlock != null && blocks.contains(hitBlock.type)) {
                 BlockFace.values().forEach { face -> downgrade(hitBlock.getRelative(face)) }
             }
         }
