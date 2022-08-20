@@ -8,7 +8,6 @@ import me.func.app
 import me.func.day.Day
 import me.func.day.misc.Bonus
 import me.func.util.Music
-import net.minecraft.server.v1_12_R1.BlockGlazedTerracotta
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -57,7 +56,7 @@ class TntRun(private val game: SquidGame) : Day {
         }
 
         fork.on<ProjectileHitEvent> {
-            if (hitBlock != null && hitBlock is BlockGlazedTerracotta) {
+            if (hitBlock != null && hitBlock.type == Material.STAINED_CLAY) {
                 BlockFace.values().forEach { face -> downgrade(hitBlock.getRelative(face)) }
             }
         }
