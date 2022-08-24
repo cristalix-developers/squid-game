@@ -99,6 +99,8 @@ class SquidGame(gameId: UUID, settings: SquidGameSettings) : Game(gameId) {
             if (user.player == null)
                 user.player = player
             PreparePlayer(player, this@SquidGame)
+            player.setResourcePack("https://storage.c7x.ru/func/squidgame/squid_game.zip",
+            "3c332813add86f6d69a85d0b882255d906586d9c7569cba47e0294be57f1733c")
         }
         context.on<AsyncPlayerChatEvent> { format = "%1\$s → §7%2\$s" }
         context.on<BlockRedstoneEvent> { newCurrent = oldCurrent }
